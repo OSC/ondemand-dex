@@ -1,3 +1,5 @@
+%{!?package_release: %define package_release 1}
+
 %define go_version 1.14.2
 
 %define debug_package %{nil}
@@ -7,8 +9,8 @@
 %define confdir %{_sysconfdir}/ood/%{appname}
 
 Name:       ondemand-%{appname}
-Version:    2.23.0
-Release:    2%{?dist}
+Version:    %{package_version}
+Release:    %{package_release}%{?dist}
 Summary:    A federated OpenID Connect provider
 
 Group:      System Environment/Daemons
