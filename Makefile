@@ -1,5 +1,4 @@
 .PHONY: packaging
 
 packaging:
-	[ -d packaging/theme ] && rm -rf packaging/theme || :
-	cp -r theme packaging/theme
+	tar czvf packaging/theme.tar.gz theme/*

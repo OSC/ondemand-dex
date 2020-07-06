@@ -18,7 +18,7 @@ License:    Apache-2.0
 URL:        https://github.com/dexidp/dex
 Source0:    https://github.com/dexidp/dex/archive/v%{version}.tar.gz
 Source1:    https://dl.google.com/go/go%{go_version}.linux-amd64.tar.gz
-Source2:    theme
+Source2:    theme.tar.gz
 
 BuildRequires:  ondemand-scldevel
 BuildRequires:  systemd
@@ -53,7 +53,8 @@ cd $GOPATH/src/github.com/dexidp/dex/
 touch %{buildroot}%{confdir}/dex.db
 %__mkdir_p %{buildroot}%{_datadir}/%{name}
 %__cp -R web %{buildroot}%{_datadir}/%{name}/web
-%__cp -R %{SOURCE2} %{buildroot}%{_datadir}/%{name}/web/themes/ondemand
+%__mkdir_p %{buildroot}%{_datadir}/%{name}/web/themes/ondemand
+%__tar -C %{buildroot}%{_datadir}/%{name}/web/themes/ondemand -xzf %{SOURCE2}
 %__mkdir_p %{buildroot}%{_unitdir}
 %__cat >> %{buildroot}%{_unitdir}/%{name}.service << EOF
 [Unit]
