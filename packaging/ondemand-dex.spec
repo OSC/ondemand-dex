@@ -48,7 +48,7 @@ cd $GOPATH/src/github.com/dexidp/dex/
 export PATH=$PATH:%{_buildrootdir}/go/bin
 GOPATH=$(go env GOPATH)
 cd $GOPATH/src/github.com/dexidp/dex/
-%__install -p -m 755 -D bin/dex %{buildroot}%{_exec_prefix}/sbin/%{name}
+%__install -p -m 755 -D bin/dex %{buildroot}%{_sbindir}/%{name}
 %__install -p -m 600 -D examples/config-dev.yaml %{buildroot}%{confdir}/config.yaml
 touch %{buildroot}%{confdir}/dex.db
 %__mkdir_p %{buildroot}%{_datadir}/%{name}
@@ -63,7 +63,7 @@ Wants=network-online.target
 
 [Service]
 WorkingDirectory=%{_datadir}/%{name}
-ExecStart=%{_exec_prefix}/sbin/%{name} serve %{confdir}/config.yaml
+ExecStart=%{_sbindir}/%{name} serve %{confdir}/config.yaml
 User=%{name}
 Group=%{name}
 
@@ -88,7 +88,7 @@ getent passwd %{name} > /dev/null || useradd -r -d /var/lib/%{name} -g %{name} -
 %systemd_postun_with_restart %{name}.service
 
 %files
-%{_exec_prefix}/sbin/%{name}
+%{_sbindir}/%{name}
 %dir %attr(0700,%{name},%{name}) %{confdir}
 %config(noreplace,missingok) %attr(0600,%{name},%{name}) %{confdir}/config.yaml
 %ghost %{confdir}/dex.db
