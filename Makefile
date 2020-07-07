@@ -1,4 +1,4 @@
 .PHONY: packaging
 
 packaging:
-	tar czvf packaging/theme.tar.gz theme/*
+	cd theme && tar czvf ../packaging/theme.tar.gz ./*
