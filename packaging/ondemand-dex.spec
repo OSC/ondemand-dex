@@ -19,10 +19,13 @@ URL:        https://github.com/dexidp/dex
 Source0:    https://github.com/dexidp/dex/archive/v%{version}.tar.gz
 Source1:    https://dl.google.com/go/go%{go_version}.linux-amd64.tar.gz
 Source2:    theme.tar.gz
+# Adds session support
+Source3:    https://github.com/OSC/dex/commit/b3fc3e6c2295c0af166803bdde0977ed170d1d40.patch
 
 BuildRequires:  ondemand-scldevel
 BuildRequires:  systemd
 BuildRequires:  git
+BuildRequires:  patch
 Requires:       systemd
 Requires:       %{?scl_ondemand_prefix_apache}mod_auth_openidc
 
@@ -36,6 +39,8 @@ export PATH=$PATH:%{_buildrootdir}/go/bin
 GOPATH=$(go env GOPATH)
 %__mkdir_p $GOPATH/src/github.com/dexidp/dex
 %__cp -R ./* $GOPATH/src/github.com/dexidp/dex/
+cd $GOPATH/src/github.com/dexidp/dex/
+%__patch -p1 < %{SOURCE3}
 
 %build
 export PATH=$PATH:%{_buildrootdir}/go/bin
