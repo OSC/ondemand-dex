@@ -68,6 +68,10 @@ touch %{buildroot}%{confdir}/dex.db
 ExecStart=
 ExecStart=%{_sbindir}/%{name}-session serve %{confdir}/config.yaml
 EOF
+%__cat >> %{buildroot}%{_sysconfdir}/systemd/system/%{name}.service.d/update_ood_portal.conf << EOF
+[Service]
+ExecStartPre=-/opt/ood/ood-portal-generator/sbin/update_ood_portal --rpm
+EOF
 %__mkdir_p %{buildroot}%{_unitdir}
 %__cat >> %{buildroot}%{_unitdir}/%{name}.service << EOF
 [Unit]
@@ -113,4 +117,5 @@ getent passwd %{name} > /dev/null || useradd -r -d /var/lib/%{name} -g %{name} -
 %dir %{_sysconfdir}/systemd/system/%{name}.service.d
 %ghost %{_sysconfdir}/systemd/system/%{name}.service.d/session.conf
 %{_sysconfdir}/systemd/system/%{name}.service.d/session.conf.example
+%{_sysconfdir}/systemd/system/%{name}.service.d/update_ood_portal.conf
 %{_unitdir}/%{name}.service
