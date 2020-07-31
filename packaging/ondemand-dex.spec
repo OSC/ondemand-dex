@@ -20,6 +20,7 @@ Source0:    https://github.com/dexidp/dex/archive/v%{version}.tar.gz
 Source1:    https://dl.google.com/go/go%{go_version}.linux-amd64.tar.gz
 Source2:    web.tar.gz
 # Adds session support
+# Original commit: https://github.com/juliantaylor/dex/commit/b3fc3e6c2295c0af166803bdde0977ed170d1d40
 Source5:    https://github.com/OSC/dex/commit/b3fc3e6c2295c0af166803bdde0977ed170d1d40.patch
 
 BuildRequires:  ondemand-scldevel
