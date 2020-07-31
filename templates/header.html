@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en-US">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <title>Log in to {{ issuer }}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="{{ url .ReqPath "static/bootstrap.min.css" }}" rel="stylesheet">
+    <link href="{{ url .ReqPath "theme/styles.css" }}" rel="stylesheet">
+    <link rel="icon" href="{{ url .ReqPath "theme/favicon.png" }}">
+  </head>
+
+  <body>
+    <div class="nav-scroller shadow-md">
+      <nav class="nav nav-underline dex-nav">
+        <a class="navbar-brand mx-auto {{ if "navLogoMarginTop" | extra }}mt-{{ "navLogoMarginTop" | extra }}{{ end }}{{ if "navLogoMarginBottom" | extra }}mb-{{ "navLogoMarginBottom" | extra }}{{ end }}" href="">
+          <img src="{{ url .ReqPath "theme/nav-logo-inverted.png" }}" class="mx-auto" style="width: 12rem;" alt="Navigation Bar Logo">
+        </a>
+      </nav>
+    </div>
+    <div class="container">
+      <div class="row justify-content-center">
