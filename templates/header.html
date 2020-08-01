@@ -6,15 +6,22 @@
     <title>Log in to {{ issuer }}</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="{{ url .ReqPath "static/bootstrap.min.css" }}" rel="stylesheet">
+    <link href="{{ url .ReqPath "static/main.css" }}" rel="stylesheet">
     <link href="{{ url .ReqPath "theme/styles.css" }}" rel="stylesheet">
-    <link rel="icon" href="{{ url .ReqPath "theme/favicon.png" }}">
+    <link rel="mask-icon" href="{{ url .ReqPath "theme/favicon.svg" }}" color="#000000">
+    <link rel="alternate icon" type="image/png" href="{{ url .ReqPath "theme/favicon.png" }}">  
+    <link rel="icon" href="{{ url .ReqPath "theme/favicon.svg" }}" type="image/svg+xml">
   </head>
 
   <body>
     <div class="nav-scroller shadow-md">
-      <nav class="nav nav-underline dex-nav">
-        <a class="navbar-brand mx-auto {{ if "navLogoMarginTop" | extra }}mt-{{ "navLogoMarginTop" | extra }}{{ end }}{{ if "navLogoMarginBottom" | extra }}mb-{{ "navLogoMarginBottom" | extra }}{{ end }}" href="">
-          <img src="{{ url .ReqPath "theme/nav-logo-inverted.png" }}" class="mx-auto" style="width: 12rem;" alt="Navigation Bar Logo">
+      <nav class="nav nav-underline ood-nav">
+        <a class="navbar-brand mx-auto" href="">
+          {{ if "navLogo" | extra }}
+            <img class="ood-nav-logo" src="{{ "navLogo" | extra }}" alt="Navigation Logo">
+          {{ else }}
+            <img class="ood-nav-logo" src="{{ url .ReqPath "theme/nav-logo.png" }}" alt="Navigation Logo">
+          {{ end }}
         </a>
       </nav>
     </div>
