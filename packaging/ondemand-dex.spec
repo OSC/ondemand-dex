@@ -20,6 +20,7 @@ Source0:    https://github.com/dexidp/dex/archive/v%{version}.tar.gz
 Source1:    https://dl.google.com/go/go%{go_version}.linux-amd64.tar.gz
 Source2:    web.tar.gz
 # Adds session support
+# Original commit: https://github.com/juliantaylor/dex/commit/b3fc3e6c2295c0af166803bdde0977ed170d1d40
 Source5:    https://github.com/OSC/dex/commit/b3fc3e6c2295c0af166803bdde0977ed170d1d40.patch
 
 BuildRequires:  ondemand-scldevel
@@ -68,6 +69,10 @@ touch %{buildroot}%{confdir}/dex.db
 ExecStart=
 ExecStart=%{_sbindir}/%{name}-session serve %{confdir}/config.yaml
 EOF
+%__cat >> %{buildroot}%{_sysconfdir}/systemd/system/%{name}.service.d/update_ood_portal.conf << EOF
+[Service]
+ExecStartPre=-/opt/ood/ood-portal-generator/sbin/update_ood_portal --rpm
+EOF
 %__mkdir_p %{buildroot}%{_unitdir}
 %__cat >> %{buildroot}%{_unitdir}/%{name}.service << EOF
 [Unit]
@@ -113,4 +118,5 @@ getent passwd %{name} > /dev/null || useradd -r -d /var/lib/%{name} -g %{name} -
 %dir %{_sysconfdir}/systemd/system/%{name}.service.d
 %ghost %{_sysconfdir}/systemd/system/%{name}.service.d/session.conf
 %{_sysconfdir}/systemd/system/%{name}.service.d/session.conf.example
+%{_sysconfdir}/systemd/system/%{name}.service.d/update_ood_portal.conf
 %{_unitdir}/%{name}.service
