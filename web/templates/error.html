@@ -1,0 +1,11 @@
+{{ template "header.html" . }}
+
+<div class="card w-50 mt-5 shadow-sm">
+  <div class="card-body" role="alert">
+    <h5 class="card-title">{{ .ErrType }}</h5>
+
+    <div>{{ .ErrMsg }}</div>
+  </div>
+</div>
+
+{{ template "footer.html" . }}
