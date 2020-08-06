@@ -1,0 +1,14 @@
+[Unit]
+Description=OnDemand Dex - A federated OpenID Connect provider packaged for OnDemand
+After=network-online.target multi-user.target
+Wants=network-online.target
+
+[Service]
+SyslogIdentifier=ondemand-dex
+WorkingDirectory=/usr/share/ondemand-dex
+ExecStart=%{_sbindir}/ondemand-dex serve /etc/ood/dex/config.yaml
+User=ondemand-dex
+Group=ondemand-dex
+
+[Install]
+WantedBy=multi-user.target
