@@ -96,6 +96,12 @@ getent passwd %{name} > /dev/null || useradd -r -d /var/lib/%{name} -g %{name} -
 
 %post
 %systemd_post %{name}.service
+# On install, run update_ood_portal if installed
+if [ $1 == 1 ]; then
+  if [ -f /opt/ood/ood-portal-generator/sbin/update_ood_portal ]; then
+    /opt/ood/ood-portal-generator/sbin/update_ood_portal --rpm
+  fi
+fi
 
 %preun
 %systemd_preun %{name}.service
