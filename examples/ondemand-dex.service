@@ -6,7 +6,7 @@ Wants=network-online.target
 [Service]
 SyslogIdentifier=ondemand-dex
 WorkingDirectory=/usr/share/ondemand-dex
-ExecStart=%{_sbindir}/ondemand-dex serve /etc/ood/dex/config.yaml
+ExecStart=/usr/sbin/ondemand-dex serve /etc/ood/dex/config.yaml
 User=ondemand-dex
 Group=ondemand-dex
 
