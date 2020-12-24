@@ -1,0 +1,25 @@
+{{ template "header.html" . }}
+
+<div class="card w-75 mt-5 shadow-sm">
+  <div class="card-body">
+    <h4 class="card-title">Enter User Code</h4>
+    <form method="post" action="{{ .PostURL }}" method="get">
+      <div class="form-group">
+        {{ if( .UserCode  )}}
+        <input tabindex="2" required id="user_code" name="user_code" type="text" class="form-control" autocomplete="off" value="{{.UserCode}}" {{ if .Invalid }} autofocus {{ end }}/>
+        {{ else }}
+        <input tabindex="2" required id="user_code" name="user_code" type="text" class="form-control" placeholder="XXXX-XXXX" autocomplete="off"  {{ if .Invalid }} autofocus {{ end }}/>
+        {{ end }}
+      </div>
+
+      {{ if .Invalid }}
+      <div id="login-error" class="dex-error-box">
+        Invalid or Expired User Code
+      </div>
+      {{ end }}
+      <button tabindex="3" id="submit-login" type="submit" class="btn btn-dark">Submit</button>
+    </form>
+  </div>
+</div>
+
+{{ template "footer.html" . }}
