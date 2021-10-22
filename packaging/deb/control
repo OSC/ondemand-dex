@@ -3,7 +3,6 @@ Section: unknown
 Priority: optional
 Maintainer: Trey Dockendorf <tdockendorf@osc.edu>
 Build-Depends: debhelper (>=11~), wget, golang-1.16
-Depends: ${misc:Depends}, ${shlibs:Depends}
 Standards-Version: 4.1.4
 Homepage: https://github.com/OSC/ondemand-dex
 Rules-Requires-Root: no
@@ -11,5 +10,6 @@ Rules-Requires-Root: no
 Package: ondemand-dex
 Architecture: any
 Multi-Arch: foreign
+Depends: ${misc:Depends}, ${shlibs:Depends}, systemd, libapache2-mod-auth-openidc, ondemand
 Description: OnDemand Dex
  The Open OnDemand deployment of Dex (https://github.com/dexidp/dex)
