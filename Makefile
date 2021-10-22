@@ -1,4 +1,4 @@
-.PHONY: packaging
+.PHONY: deb-packaging rpm-packaging
 TAR := tar
 VERSION := 2.27.0
 
