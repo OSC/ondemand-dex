@@ -10,6 +10,6 @@ Rules-Requires-Root: no
 Package: ondemand-dex
 Architecture: any
 Multi-Arch: foreign
-Depends: ${misc:Depends}, ${shlibs:Depends}, systemd, libapache2-mod-auth-openidc, ondemand
+Depends: ${misc:Depends}, ${shlibs:Depends}, systemd, libapache2-mod-auth-openidc
 Description: OnDemand Dex
  The Open OnDemand deployment of Dex (https://github.com/dexidp/dex)
