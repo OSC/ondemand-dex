@@ -41,8 +41,8 @@ override_dh_auto_install:
 	install -p -m 755 -D $(DEXDIR)/bin/dex-session $(DESTDIR)/usr/sbin/ondemand-dex-session
 	install -p -m 600 -D $(DEXDIR)/examples/config-dev.yaml $(CONFDIR)/config.yaml
 	touch $(CONFDIR)/dex.db
-	mkdir -p $(DESTDIR)/usr/share
-	cp -R web $(DESTDIR)/usr/share/web
+	mkdir -p $(DESTDIR)/usr/share/ondemand-dex
+	cp -R web $(DESTDIR)/usr/share/ondemand-dex/web
 	install -p -m 0644 -D packaging/session.conf.example $(CONF_UNITDIR)/ondemand-dex.service.d/session.conf.example
 	dh_installsystemd
 
