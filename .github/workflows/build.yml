@@ -26,11 +26,14 @@ jobs:
           mkdir -p tmp
           git clone --single-branch --branch master https://github.com/OSC/ondemand-packaging.git tmp/ondemand-packaging
 
-      - name: Build package
+      - name: Build RPM package
+        if: "startsWith(matrix.dist, 'el')"
         run: |
-          if [[ "${{ matrix.dist }}" == ubuntu* ]]; then
-            dist_arg="-D ${{ matrix.dist }}"
-          else
-            dist_arg="-d ${{ matrix.dist }}"
-          fi
-          ./tmp/ondemand-packaging/build.sh -w $(pwd)/tmp/work -o $(pwd)/tmp/output $dist_arg -V ${{ matrix.version }} -v $(pwd)
+          make rpm-packaging
+          ./tmp/ondemand-packaging/build.sh -w $(pwd)/tmp/work -o $(pwd)/tmp/output -d ${{ matrix.dist }} -V ${{ matrix.version }} -v $(pwd)
+
+      - name: Build deb package
+        if: "startsWith(matrix.dist, 'ubuntu')"
+        run: |
+          make deb-packaging
+          ./tmp/ondemand-packaging/build.sh -w $(pwd)/tmp/work -o $(pwd)/tmp/output -D ${{ matrix.dist }} -V ${{ matrix.version }} -v $(pwd)
