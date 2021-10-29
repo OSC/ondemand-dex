@@ -1,0 +1,39 @@
+name: Build
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        dist: ["el7", "el8", "ubuntu-20.04"]
+        version: ["v2.27.0"]
+    runs-on: "ubuntu-latest"
+    name: Build test ${{ matrix.version }} for ${{ matrix.dist }}
+
+    steps:
+      - name: Checkout ${{ github.sha	}}
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - name: Get ondemand-packaging
+        run: |
+          mkdir -p tmp
+          git clone --single-branch --branch master https://github.com/OSC/ondemand-packaging.git tmp/ondemand-packaging
+
+      - name: Build RPM package
+        if: "startsWith(matrix.dist, 'el')"
+        run: |
+          make rpm-packaging
+          ./tmp/ondemand-packaging/build.sh -w $(pwd)/tmp/work -o $(pwd)/tmp/output -d ${{ matrix.dist }} -V ${{ matrix.version }} -v $(pwd)/packaging/rpm
+
+      - name: Build deb package
+        if: "startsWith(matrix.dist, 'ubuntu')"
+        run: |
+          make deb-packaging
+          ./tmp/ondemand-packaging/build.sh -w $(pwd)/tmp/work -o $(pwd)/tmp/output -D ${{ matrix.dist }} -V ${{ matrix.version }} -v $(pwd)
