@@ -1,0 +1,36 @@
+name: Build
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        dist: ["el7", "el8", "ubuntu-20.04"]
+        version: ["v2.27.0"]
+    runs-on: "ubuntu-latest"
+    name: Build test ${{ matrix.version }} for ${{ matrix.dist }}
+
+    steps:
+      - name: Checkout ${{ github.sha	}}
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - name: Get ondemand-packaging
+        run: |
+          mkdir -p tmp
+          git clone --single-branch --branch master https://github.com/OSC/ondemand-packaging.git tmp/ondemand-packaging
+
+      - name: Build package
+        run: |
+          if [[ "${{ matrix.dist }}" == ubuntu* ]]; then
+            dist_arg="-D ${{ matrix.dist }}"
+          else
+            dist_arg="-d ${{ matrix.dist }}"
+          fi
+          ./tmp/ondemand-packaging/build.sh -w ./tmp/work -o ./tmp/output $dist_arg -V ${{ matrix.version }} -v $(pwd)
