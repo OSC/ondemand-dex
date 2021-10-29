@@ -33,4 +33,4 @@ jobs:
           else
             dist_arg="-d ${{ matrix.dist }}"
           fi
-          ./tmp/ondemand-packaging/build.sh -w ./tmp/work -o ./tmp/output $dist_arg -V ${{ matrix.version }} -v $(pwd)
+          ./tmp/ondemand-packaging/build.sh -w $(pwd)/tmp/work -o $(pwd)/tmp/output $dist_arg -V ${{ matrix.version }} -v $(pwd)
