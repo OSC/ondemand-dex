@@ -30,7 +30,7 @@ jobs:
         if: "startsWith(matrix.dist, 'el')"
         run: |
           make rpm-packaging
-          ./tmp/ondemand-packaging/build.sh -w $(pwd)/tmp/work -o $(pwd)/tmp/output -d ${{ matrix.dist }} -V ${{ matrix.version }} -v $(pwd)
+          ./tmp/ondemand-packaging/build.sh -w $(pwd)/tmp/work -o $(pwd)/tmp/output -d ${{ matrix.dist }} -V ${{ matrix.version }} -v $(pwd)/packaging/rpm
 
       - name: Build deb package
         if: "startsWith(matrix.dist, 'ubuntu')"
