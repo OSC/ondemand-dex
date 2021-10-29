@@ -1,3 +1,4 @@
 *.tar.gz
-/packaging/*.tar.gz
-/packaging/tmp
+tmp
+build/*
+!build/.keep

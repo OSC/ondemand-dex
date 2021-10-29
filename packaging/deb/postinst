@@ -1,0 +1,12 @@
+#!/bin/bash
+
+if [ -f /opt/ood/ood-portal-generator/sbin/update_ood_portal ]; then
+  /opt/ood/ood-portal-generator/sbin/update_ood_portal --rpm
+fi
+
+getent group ondemand-dex > /dev/null || groupadd -r ondemand-dex
+getent passwd ondemand-dex > /dev/null || useradd -r -d /var/lib/ondemand-dex -g ondemand-dex -s /sbin/nologin -c "OnDemand Dex" ondemand-dex
+
+chown -R ondemand-dex: /etc/ood/dex
+chmod 0700 /etc/ood/dex
+chmod 0600 /etc/ood/dex/config.yaml

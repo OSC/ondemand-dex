@@ -1,0 +1,3 @@
+prepend_path: /usr/lib/go-1.16/bin
+dependencies:
+  - golang-1.16
