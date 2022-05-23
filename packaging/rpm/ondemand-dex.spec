@@ -17,9 +17,9 @@ Summary:    A federated OpenID Connect provider
 Group:      System Environment/Daemons
 License:    Apache-2.0
 URL:        https://github.com/dexidp/dex
-Source0:    https://github.com/dexidp/dex/archive/v%{version}.tar.gz
-Source1:    https://dl.google.com/go/go%{go_version}.linux-amd64.tar.gz
-Source2:    web.tar.gz
+Source0:    https://github.com/OSC/ondemand-dex/archive/ondemand-dex-%{package_version}.tar.gz
+Source1:    https://github.com/dexidp/dex/archive/v%{version}.tar.gz
+Source2:    https://dl.google.com/go/go%{go_version}.linux-amd64.tar.gz
 # Adds session support
 # Original commit: https://github.com/juliantaylor/dex/commit/b3fc3e6c2295c0af166803bdde0977ed170d1d40
 Source5:    https://github.com/OSC/dex/commit/6c3999e5fd7ca2cf2e091ba05f8e84d9d7addfb3.patch
@@ -35,12 +35,15 @@ Requires:       %{?scl_ondemand_prefix_apache}mod_auth_openidc
 A federated OpenID Connect provider packaged for Open OnDemand
 
 %prep
-%setup -q -n %{appname}-%{version}
+%setup -q -n ondemand-%{appname}-%{version}
+%__mkdir_p %{_buildrootdir}/dex
 %__tar -C %{_buildrootdir} -xzf %{SOURCE1}
+%__tar -C %{_buildrootdir} -xzf %{SOURCE2}
 export PATH=$PATH:%{_buildrootdir}/go/bin
 GOPATH=$(go env GOPATH)
-%__mkdir_p $GOPATH/src/github.com/dexidp/dex
-%__cp -R ./* $GOPATH/src/github.com/dexidp/dex/
+%__mkdir_p $GOPATH/src/github.com/dexidp
+%__mv %{_buildrootdir}/%{appname}-%{version} $GOPATH/src/github.com/dexidp/dex
+
 
 %build
 export PATH=$PATH:%{_buildrootdir}/go/bin
@@ -62,8 +65,8 @@ cd $GOPATH/src/github.com/dexidp/dex/
 %__install -p -m 755 -D bin/dex-session %{buildroot}%{_sbindir}/%{name}-session
 %__install -p -m 600 -D examples/config-dev.yaml %{buildroot}%{confdir}/config.yaml
 touch %{buildroot}%{confdir}/dex.db
-%__mkdir_p %{buildroot}%{_datadir}/%{name}/web
-%__tar -C %{buildroot}%{_datadir}/%{name}/web -xzf %{SOURCE2}
+%__mkdir_p %{buildroot}%{_datadir}/%{name}
+%__cp -R web %{buildroot}%{_datadir}/%{name}/web
 %__mkdir_p %{buildroot}%{_sysconfdir}/systemd/system/%{name}.service.d
 %__cat >> %{buildroot}%{_sysconfdir}/systemd/system/%{name}.service.d/session.conf.example << EOF
 [Service]

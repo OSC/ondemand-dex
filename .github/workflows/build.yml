@@ -26,18 +26,8 @@ jobs:
           mkdir -p tmp
           git clone --single-branch --branch main https://github.com/OSC/ondemand-packaging.git tmp/ondemand-packaging
 
-      - name: Prep RPM package
-        if: "startsWith(matrix.dist, 'el')"
-        run: |
-          make rpm-packaging
-
-      - name: Prep deb package
-        if: "startsWith(matrix.dist, 'ubuntu')"
-        run: |
-          make deb-packaging
-
       - name: Build package
         run: |
-          ./tmp/ondemand-packaging/bin/ood_packaging -w $(pwd)/tmp/work -o $(pwd)/tmp/output -d ${{ matrix.dist }} -V ${{ matrix.version }} $(pwd)
+          ./tmp/ondemand-packaging/bin/ood_packaging -w $(pwd)/tmp/work -o $(pwd)/tmp/output -d ${{ matrix.dist }} -V ${{ matrix.version }} -T $(pwd)
         env:
           OOD_PACKAGING_DEBUG: 'true'
