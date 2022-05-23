@@ -23,7 +23,7 @@ export CONF_UNITDIR = $(DESTDIR)/etc/systemd/system
 
 override_dh_auto_configure:
 	mkdir -p $(BUILDDIR)
-	wget -q -O $(BUILDDIR)/dex.tar.gz https://github.com/dexidp/dex/archive/v$(VERSION).tar.gz
+	wget -q -O $(BUILDDIR)/dex.tar.gz https://github.com/dexidp/dex/archive/$(VERSION).tar.gz
 	#wget -q -O $(BUILDDIR)/go.tar.gz https://dl.google.com/go/go$(GO_VERSION).linux-amd64.tar.gz
 	tar -C $(BUILDDIR) -xzf $(BUILDDIR)/dex.tar.gz
 	#tar -C $(BUILDDIR) -xzf $(BUILDDIR)/go.tar.gz
