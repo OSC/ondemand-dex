@@ -15,7 +15,7 @@ variables:
   OOD_PACKAGING_GPG_PRIVATE_KEY: /systems/osc_certs/gpg/ondemand/ondemand.sec
   OOD_PACKAGING_GPG_PASSPHRASE: /systems/osc_certs/gpg/ondemand/.gpgpass
 
-rpm-build:
+build:
   stage: build
   only:
     - tags
