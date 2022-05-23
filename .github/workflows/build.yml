@@ -39,3 +39,5 @@ jobs:
       - name: Build package
         run: |
           ./tmp/ondemand-packaging/bin/ood_packaging -w $(pwd)/tmp/work -o $(pwd)/tmp/output -d ${{ matrix.dist }} -V ${{ matrix.version }} $(pwd)
+        env:
+          OOD_PACKAGING_DEBUG: 'true'
