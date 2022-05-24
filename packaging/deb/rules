@@ -6,17 +6,17 @@
 # Output every command that modifies files on the build system.
 export DH_VERBOSE = 1
 #
-export SESSION_COMMIT = 324b80419ea03bab41371a80929981e62264ce55
+export SESSION_COMMIT = 703e26bc109e86d00be22ef1803bdb96b2dc09e2
+export GO_VERSION = 1.17.10
 export BUILDDIR = $(CURDIR)/build
 export DEX_VERSION = $(VERSION:v%=%)
+export GOPATH = /tmp/go
+export PATH = /usr/bin:/bin:/usr/sbin:/sbin:/usr/local/bin:/usr/local/sbin:$(GOPATH)/bin
 export DEXDIR = $(BUILDDIR)/dex-$(DEX_VERSION)
 export DESTDIR = $(CURDIR)/debian/ondemand-dex
 export CONFDIR = $(DESTDIR)/etc/ood/dex
 export UNITDIR = $(DESTDIR)/lib/systemd/system
 export CONF_UNITDIR = $(DESTDIR)/etc/systemd/system
-#export GO_VERSION = 1.15.6
-#export GOPATH = $(CURDIR)/tmp/go
-#export PATH = /usr/bin:/bin:/usr/sbin:/sbin:/usr/local/bin:/usr/local/sbin:$(GOPATH)/bin
 
 # main packaging script based on dh7 syntax
 %:
@@ -25,10 +25,10 @@ export CONF_UNITDIR = $(DESTDIR)/etc/systemd/system
 override_dh_auto_configure:
 	mkdir -p $(BUILDDIR)
 	wget -q -O $(BUILDDIR)/dex.tar.gz https://github.com/dexidp/dex/archive/v$(DEX_VERSION).tar.gz
-	#wget -q -O $(BUILDDIR)/go.tar.gz https://dl.google.com/go/go$(GO_VERSION).linux-amd64.tar.gz
 	tar -C $(BUILDDIR) -xzf $(BUILDDIR)/dex.tar.gz
-	#tar -C $(BUILDDIR) -xzf $(BUILDDIR)/go.tar.gz
 	wget -q -O $(BUILDDIR)/session.patch https://github.com/OSC/dex/commit/$(SESSION_COMMIT).patch
+	wget -q -O /tmp/go.tar.gz https://dl.google.com/go/go$(GO_VERSION).linux-amd64.tar.gz
+	tar -C /tmp -xzf /tmp/go.tar.gz
 
 override_dh_auto_build:
 	cd $(DEXDIR) ; make build
