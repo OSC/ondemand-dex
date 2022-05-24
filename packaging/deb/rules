@@ -52,3 +52,6 @@ override_dh_auto_clean:
 
 override_dh_strip:
 	# Do nothing
+
+override_dh_builddeb:
+	dh_builddeb -- -Zgzip
