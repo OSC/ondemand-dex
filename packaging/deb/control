@@ -2,7 +2,7 @@ Source: ondemand-dex
 Section: unknown
 Priority: optional
 Maintainer: Trey Dockendorf <tdockendorf@osc.edu>
-Build-Depends: debhelper (>=11~), wget, golang-1.16
+Build-Depends: debhelper (>=11~), wget, golang-go
 Standards-Version: 4.1.4
 Homepage: https://github.com/OSC/ondemand-dex
 Rules-Requires-Root: no

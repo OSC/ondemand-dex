@@ -1,3 +1,4 @@
-prepend_path: /usr/lib/go-1.16/bin
-dependencies:
-  - golang-1.16
+ubuntu-20.04:
+  prepend_path: /usr/lib/go-1.16/bin
+ubuntu-22.04:
+  prepend_path: /usr/lib/go-1.18/bin
