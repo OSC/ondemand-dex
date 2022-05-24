@@ -8,7 +8,8 @@ export DH_VERBOSE = 1
 #
 export SESSION_COMMIT = 6c3999e5fd7ca2cf2e091ba05f8e84d9d7addfb3
 export BUILDDIR = $(CURDIR)/build
-export DEXDIR = $(BUILDDIR)/dex-$(VERSION)
+export DEX_VERSION = $(VERSION:v%=%)
+export DEXDIR = $(BUILDDIR)/dex-$(DEX_VERSION)
 export DESTDIR = $(CURDIR)/debian/ondemand-dex
 export CONFDIR = $(DESTDIR)/etc/ood/dex
 export UNITDIR = $(DESTDIR)/lib/systemd/system
@@ -23,7 +24,7 @@ export CONF_UNITDIR = $(DESTDIR)/etc/systemd/system
 
 override_dh_auto_configure:
 	mkdir -p $(BUILDDIR)
-	wget -q -O $(BUILDDIR)/dex.tar.gz https://github.com/dexidp/dex/archive/v$(VERSION).tar.gz
+	wget -q -O $(BUILDDIR)/dex.tar.gz https://github.com/dexidp/dex/archive/v$(DEX_VERSION).tar.gz
 	#wget -q -O $(BUILDDIR)/go.tar.gz https://dl.google.com/go/go$(GO_VERSION).linux-amd64.tar.gz
 	tar -C $(BUILDDIR) -xzf $(BUILDDIR)/dex.tar.gz
 	#tar -C $(BUILDDIR) -xzf $(BUILDDIR)/go.tar.gz

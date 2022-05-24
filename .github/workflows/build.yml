@@ -24,16 +24,10 @@ jobs:
       - name: Get ondemand-packaging
         run: |
           mkdir -p tmp
-          git clone --single-branch --branch master https://github.com/OSC/ondemand-packaging.git tmp/ondemand-packaging
+          git clone --single-branch --branch main https://github.com/OSC/ondemand-packaging.git tmp/ondemand-packaging
 
-      - name: Build RPM package
-        if: "startsWith(matrix.dist, 'el')"
+      - name: Build package
         run: |
-          make rpm-packaging
-          ./tmp/ondemand-packaging/build.sh -w $(pwd)/tmp/work -o $(pwd)/tmp/output -d ${{ matrix.dist }} -V ${{ matrix.version }} -v $(pwd)/packaging/rpm
-
-      - name: Build deb package
-        if: "startsWith(matrix.dist, 'ubuntu')"
-        run: |
-          make deb-packaging
-          ./tmp/ondemand-packaging/build.sh -w $(pwd)/tmp/work -o $(pwd)/tmp/output -D ${{ matrix.dist }} -V ${{ matrix.version }} -v $(pwd)
+          ./tmp/ondemand-packaging/bin/ood_packaging -w $(pwd)/tmp/work -o $(pwd)/tmp/output -d ${{ matrix.dist }} -V ${{ matrix.version }} -T $(pwd)
+        env:
+          OOD_PACKAGING_DEBUG: 'true'
