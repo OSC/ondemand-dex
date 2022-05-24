@@ -6,7 +6,7 @@
 # Output every command that modifies files on the build system.
 export DH_VERBOSE = 1
 #
-export SESSION_COMMIT = 6c3999e5fd7ca2cf2e091ba05f8e84d9d7addfb3
+export SESSION_COMMIT = 324b80419ea03bab41371a80929981e62264ce55
 export BUILDDIR = $(CURDIR)/build
 export DEX_VERSION = $(VERSION:v%=%)
 export DEXDIR = $(BUILDDIR)/dex-$(DEX_VERSION)
