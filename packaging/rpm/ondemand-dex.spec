@@ -36,14 +36,13 @@ A federated OpenID Connect provider packaged for Open OnDemand
 
 %prep
 %setup -q -n ondemand-%{appname}-%{version}
-%__mkdir_p %{_buildrootdir}/dex
-%__tar -C %{_buildrootdir} -xzf %{SOURCE1}
-%__tar -C %{_buildrootdir} -xzf %{SOURCE2}
+%__tar -C %{_builddir} -xzf %{SOURCE1}
+%__tar -C %{_builddir} -xzf %{SOURCE2}
 
 
 %build
-export PATH=$PATH:%{_buildrootdir}/go/bin
-cd %{_buildrootdir}/%{appname}-%{version}
+export PATH=$PATH:%{_builddir}/go/bin
+cd %{_builddir}/%{appname}-%{version}
 %__make build
 %__mv bin/dex bin/dex-orig
 %__patch -p1 < %{SOURCE5}
@@ -53,10 +52,9 @@ cd %{_buildrootdir}/%{appname}-%{version}
 
 
 %install
-cd %{_buildrootdir}/%{appname}-%{version}
-%__install -p -m 755 -D bin/dex %{buildroot}%{_sbindir}/%{name}
-%__install -p -m 755 -D bin/dex-session %{buildroot}%{_sbindir}/%{name}-session
-%__install -p -m 600 -D examples/config-dev.yaml %{buildroot}%{confdir}/config.yaml
+%__install -p -m 755 -D %{_builddir}/%{appname}-%{version}/bin/dex %{buildroot}%{_sbindir}/%{name}
+%__install -p -m 755 -D %{_builddir}/%{appname}-%{version}/bin/dex-session %{buildroot}%{_sbindir}/%{name}-session
+%__install -p -m 600 -D %{_builddir}/%{appname}-%{version}/examples/config-dev.yaml %{buildroot}%{confdir}/config.yaml
 touch %{buildroot}%{confdir}/dex.db
 %__mkdir_p %{buildroot}%{_datadir}/%{name}
 %__cp -R web %{buildroot}%{_datadir}/%{name}/web
@@ -85,7 +83,7 @@ WantedBy=multi-user.target
 EOF
 
 %clean
-%__rm -rf %{_buildrootdir}/go
+%__rm -rf %{_builddir}/go
 
 %pre
 getent group %{name} > /dev/null || groupadd -r %{name}
