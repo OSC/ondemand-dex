@@ -1,7 +1,7 @@
 %{!?package_release: %define package_release 1}
-%{!?package_version: %define package_version 2.27.0}
+%{!?package_version: %define package_version 2.31.1}
 
-%define go_version 1.15.6
+%define go_version 1.17.10
 
 %define debug_package %{nil}
 %define __strip /bin/true
@@ -22,7 +22,7 @@ Source1:    https://github.com/dexidp/dex/archive/v%{version}.tar.gz
 Source2:    https://dl.google.com/go/go%{go_version}.linux-amd64.tar.gz
 # Adds session support
 # Original commit: https://github.com/juliantaylor/dex/commit/b3fc3e6c2295c0af166803bdde0977ed170d1d40
-Source5:    https://github.com/OSC/dex/commit/6c3999e5fd7ca2cf2e091ba05f8e84d9d7addfb3.patch
+Source5:    https://github.com/OSC/dex/commit/703e26bc109e86d00be22ef1803bdb96b2dc09e2.patch
 
 BuildRequires:  ondemand-scldevel
 BuildRequires:  systemd
@@ -36,34 +36,25 @@ A federated OpenID Connect provider packaged for Open OnDemand
 
 %prep
 %setup -q -n ondemand-%{appname}-%{version}
-%__mkdir_p %{_buildrootdir}/dex
-%__tar -C %{_buildrootdir} -xzf %{SOURCE1}
-%__tar -C %{_buildrootdir} -xzf %{SOURCE2}
-export PATH=$PATH:%{_buildrootdir}/go/bin
-GOPATH=$(go env GOPATH)
-%__mkdir_p $GOPATH/src/github.com/dexidp
-%__mv %{_buildrootdir}/%{appname}-%{version} $GOPATH/src/github.com/dexidp/dex
+%__tar -C %{_builddir} -xzf %{SOURCE1}
+%__tar -C %{_builddir} -xzf %{SOURCE2}
 
 
 %build
-export PATH=$PATH:%{_buildrootdir}/go/bin
-GOPATH=$(go env GOPATH)
-cd $GOPATH/src/github.com/dexidp/dex/
-%__make bin/dex
+export PATH=$PATH:%{_builddir}/go/bin
+cd %{_builddir}/%{appname}-%{version}
+%__make build
 %__mv bin/dex bin/dex-orig
 %__patch -p1 < %{SOURCE5}
-%__make bin/dex
+%__make build
 %__mv bin/dex bin/dex-session
 %__mv bin/dex-orig bin/dex
 
 
 %install
-export PATH=$PATH:%{_buildrootdir}/go/bin
-GOPATH=$(go env GOPATH)
-cd $GOPATH/src/github.com/dexidp/dex/
-%__install -p -m 755 -D bin/dex %{buildroot}%{_sbindir}/%{name}
-%__install -p -m 755 -D bin/dex-session %{buildroot}%{_sbindir}/%{name}-session
-%__install -p -m 600 -D examples/config-dev.yaml %{buildroot}%{confdir}/config.yaml
+%__install -p -m 755 -D %{_builddir}/%{appname}-%{version}/bin/dex %{buildroot}%{_sbindir}/%{name}
+%__install -p -m 755 -D %{_builddir}/%{appname}-%{version}/bin/dex-session %{buildroot}%{_sbindir}/%{name}-session
+%__install -p -m 600 -D %{_builddir}/%{appname}-%{version}/examples/config-dev.yaml %{buildroot}%{confdir}/config.yaml
 touch %{buildroot}%{confdir}/dex.db
 %__mkdir_p %{buildroot}%{_datadir}/%{name}
 %__cp -R web %{buildroot}%{_datadir}/%{name}/web
@@ -92,7 +83,7 @@ WantedBy=multi-user.target
 EOF
 
 %clean
-%__rm -rf %{_buildrootdir}/go
+%__rm -rf %{_builddir}/go
 
 %pre
 getent group %{name} > /dev/null || groupadd -r %{name}
