@@ -51,7 +51,7 @@ jobs:
           - ubuntu-22.04
         version: ['2.1']
     runs-on: ubuntu-latest
-    name: Package ondemand dist=${{ matrix.dist }}
+    name: Test OnDemand on ${{ matrix.dist }}
     steps:
       - name: Checkout ${{ github.sha	}}
         uses: actions/checkout@v2
@@ -76,6 +76,11 @@ jobs:
           bundle install --path vendor/bundle
           mkdir -p dist/${{ matrix.dist }}
           cp /tmp/output/${{ matrix.dist }}/* dist/${{ matrix.dist }}/
+      - name: Build OnDemand package
+        run: bundle exec rake package:build[${{ matrix.dist }}]
+        env:
+          VERSION: "${{ matrix.version }}.0"
+          OOD_PACKAGING_DEBUG: 'true'
       - name: Run OnDemand tests
         run: |
           cd /tmp/ondemand
