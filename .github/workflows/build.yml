@@ -10,25 +10,76 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        dist: ["el7", "el8", "ubuntu-20.04", "ubuntu-22.04"]
+        dist:
+          - el7
+          - el8
+          - ubuntu-20.04
+          - ubuntu-22.04
         version: ["v2.31.1"]
     runs-on: "ubuntu-latest"
     name: Build test ${{ matrix.version }} for ${{ matrix.dist }}
-
     steps:
       - name: Checkout ${{ github.sha	}}
         uses: actions/checkout@v2
         with:
           fetch-depth: 0
-
       - name: Get ondemand-packaging
         run: |
           mkdir -p tmp
           git clone --single-branch --branch main https://github.com/OSC/ondemand-packaging.git tmp/ondemand-packaging
-
       - name: Build package
         run: |
-          ./tmp/ondemand-packaging/bin/ood_packaging -w $(pwd)/tmp/work -o $(pwd)/tmp/output -V ${{ matrix.version }} -T $(pwd)
+          ./tmp/ondemand-packaging/bin/ood_packaging -w /tmp/work -o /tmp/output -V ${{ matrix.version }} -T $(pwd)
         env:
           OOD_PACKAGING_DIST: ${{ matrix.dist }}
           OOD_PACKAGING_DEBUG: 'true'
+      - name: Upload package
+        uses: actions/upload-artifact@v2
+        with:
+          name: package-${{ matrix.dist }}
+          path: /tmp/output/${{ matrix.dist }}
+
+  ondemand-test:
+    needs: [build]
+    strategy:
+      fail-fast: false
+      matrix:
+        dist:
+          - el7
+          - el8
+          - ubuntu-20.04
+          - ubuntu-22.04
+        version: ['2.1']
+    runs-on: ubuntu-latest
+    name: Package ondemand dist=${{ matrix.dist }}
+    steps:
+      - name: Checkout ${{ github.sha	}}
+        uses: actions/checkout@v2
+      - name: Setup Ruby using Bundler
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.0.4'
+          bundler: '2.1.4'
+          bundler-cache: true
+      - name: Download package
+        uses: actions/download-artifact@v2
+        with:
+          name: package-${{ matrix.dist }}
+          path: /tmp/output/${{ matrix.dist }}
+      - name: Clone ${{ matrix.package }}
+        run: |
+          mkdir -p ./tmp
+          git clone https://github.com/OSC/ondemand.git /tmp/ondemand
+      - name: Setup OnDemand
+        run: |
+          cd /tmp/ondemand
+          bundle install --path vendor/bundle
+          mkdir -p dist/${{ matrix.dist }}
+          cp /tmp/output/${{ matrix.dist }}/* dist/${{ matrix.dist }}/
+      - name: Run OnDemand tests
+        run: |
+          cd /tmp/ondemand
+          bundle exec rake test:e2e
+        env:
+          BEAKER_set: ${{ matrix.dist }}
+          OOD_BUILD_REPO: ${{ matrix.version }}
