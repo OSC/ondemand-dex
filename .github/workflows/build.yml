@@ -71,20 +71,20 @@ jobs:
           mkdir -p ./tmp
           git clone https://github.com/OSC/ondemand.git /tmp/ondemand
       - name: Setup OnDemand
+        working-directory: /tmp/ondemand
         run: |
-          cd /tmp/ondemand
           bundle install --path vendor/bundle
           mkdir -p dist/${{ matrix.dist }}
           cp /tmp/output/${{ matrix.dist }}/* dist/${{ matrix.dist }}/
       - name: Build OnDemand package
+        working-directory: /tmp/ondemand
         run: bundle exec rake package:build[${{ matrix.dist }}]
         env:
           VERSION: "${{ matrix.version }}.0"
           OOD_PACKAGING_DEBUG: 'true'
       - name: Run OnDemand tests
-        run: |
-          cd /tmp/ondemand
-          bundle exec rake test:e2e
+        working-directory: /tmp/ondemand
+        run: bundle exec rake test:e2e
         env:
           BEAKER_set: ${{ matrix.dist }}
           OOD_BUILD_REPO: ${{ matrix.version }}
