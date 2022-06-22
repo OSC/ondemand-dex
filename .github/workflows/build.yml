@@ -16,7 +16,7 @@ jobs:
           - el9
           - ubuntu-20.04
           - ubuntu-22.04
-        version: ["v2.31.1"]
+        version: ["v2.32.0"]
     runs-on: "ubuntu-latest"
     name: Build test ${{ matrix.version }} for ${{ matrix.dist }}
     steps:

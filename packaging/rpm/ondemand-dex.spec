@@ -1,5 +1,5 @@
 %{!?package_release: %define package_release 1}
-%{!?package_version: %define package_version 2.31.1}
+%{!?package_version: %define package_version 2.32.0}
 
 %define go_version 1.17.10
 
