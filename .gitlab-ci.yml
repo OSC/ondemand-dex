@@ -13,11 +13,22 @@ variables:
   OOD_PACKAGING_GPG_PRIVATE_KEY: /systems/osc_certs/gpg/ondemand/ondemand-sha512.sec
   OOD_PACKAGING_GPG_PASSPHRASE: /systems/osc_certs/gpg/ondemand/.gpgpass
 
+build-test:
+  stage: build
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "external_pull_request_event"'
+  script:
+    - ./tmp/ondemand-packaging/bin/ood_packaging -w $CI_PROJECT_DIR/tmp/work -o $CI_PROJECT_DIR/tmp/output -T $CI_PROJECT_DIR
+  parallel:
+    matrix:
+      - OOD_PACKAGING_DIST: el7
+        OOD_PACKAGING_GPG_PRIVATE_KEY: /systems/osc_certs/gpg/ondemand/ondemand.sec
+      - OOD_PACKAGING_DIST: [el8, el9, ubuntu-20.04, ubuntu-22.04]
+
 build:
   stage: build
   rules:
     - if: $CI_COMMIT_TAG
-    - if: '$CI_PIPELINE_SOURCE == "external_pull_request_event"'
   script:
     - ./tmp/ondemand-packaging/bin/ood_packaging -w $CI_PROJECT_DIR/tmp/work -o $CI_PROJECT_DIR/tmp/output -V $CI_COMMIT_TAG -T $CI_PROJECT_DIR
   parallel:
