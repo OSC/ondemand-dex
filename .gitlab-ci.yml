@@ -1,7 +1,6 @@
 before_script:
   - docker info
   - '[ -d tmp ] || mkdir tmp'
-  - git clone --single-branch --branch main https://github.com/OSC/ondemand-packaging.git $CI_PROJECT_DIR/tmp/ondemand-packaging
 stages:
   - build
   - deploy
@@ -18,6 +17,7 @@ build:
   rules:
     - if: $CI_COMMIT_TAG
   script:
+    - git clone --single-branch --branch main https://github.com/OSC/ondemand-packaging.git $CI_PROJECT_DIR/tmp/ondemand-packaging
     - ./tmp/ondemand-packaging/bin/ood_packaging -w $CI_PROJECT_DIR/tmp/work -o $CI_PROJECT_DIR/tmp/output -V $CI_COMMIT_TAG -T $CI_PROJECT_DIR
   parallel:
     matrix:
@@ -29,10 +29,35 @@ build:
       - tmp/output
     name: "$CI_PROJECT_NAME-$CI_COMMIT_TAG"
 
+build-2.0:
+  stage: build
+  rules:
+    - if: $CI_COMMIT_TAG
+  script:
+    - git clone --single-branch --branch 2.0 https://github.com/OSC/ondemand-packaging.git $CI_PROJECT_DIR/tmp/ondemand-packaging
+    - ./tmp/ondemand-packaging/bin/ood_packaging -w $CI_PROJECT_DIR/tmp/work -o $CI_PROJECT_DIR/tmp/output-2.0 -V $CI_COMMIT_TAG -T $CI_PROJECT_DIR
+  parallel:
+    matrix:
+      - OOD_PACKAGING_DIST: [ubuntu-18.04]
+  artifacts:
+    paths:
+      - tmp/output-2.0
+    name: "$CI_PROJECT_NAME-$CI_COMMIT_TAG"
+
 deploy:
   stage: deploy
   rules:
     - if: $CI_COMMIT_TAG
   script:
+    - git clone --single-branch --branch main https://github.com/OSC/ondemand-packaging.git $CI_PROJECT_DIR/tmp/ondemand-packaging
     - ./tmp/ondemand-packaging/release.py --debug --pkey /systems/osc_certs/ssh/ondemand-packaging/id_rsa -c main ./tmp/output/*
     - ./tmp/ondemand-packaging/release.py --debug --pkey /systems/osc_certs/ssh/ondemand-packaging/id_rsa -c build -r $OOD_BUILD_REPO ./tmp/output/*
+
+deploy-2.0:
+  stage: deploy
+  rules:
+    - if: $CI_COMMIT_TAG
+  script:
+    - git clone --single-branch --branch 2.0 https://github.com/OSC/ondemand-packaging.git $CI_PROJECT_DIR/tmp/ondemand-packaging
+    - ./tmp/ondemand-packaging/release.py --debug --pkey /systems/osc_certs/ssh/ondemand-packaging/id_rsa -c main ./tmp/output-2.0/*
+    - ./tmp/ondemand-packaging/release.py --debug --pkey /systems/osc_certs/ssh/ondemand-packaging/id_rsa -c build -r 2.0 ./tmp/output-2.0/*
