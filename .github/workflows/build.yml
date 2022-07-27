@@ -40,6 +40,39 @@ jobs:
           name: package-${{ matrix.dist }}
           path: /tmp/output/${{ matrix.dist }}
 
+  build-2_0:
+    strategy:
+      fail-fast: false
+      matrix:
+        dist:
+          - el7
+          - el8
+          - ubuntu-18.04
+          - ubuntu-20.04
+        version: ["v2.32.0"]
+    runs-on: "ubuntu-latest"
+    name: Build test OnDemand 2.0 ${{ matrix.version }} for ${{ matrix.dist }}
+    steps:
+      - name: Checkout ${{ github.sha	}}
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - name: Get ondemand-packaging
+        run: |
+          mkdir -p tmp
+          git clone --single-branch --branch 2.0 https://github.com/OSC/ondemand-packaging.git tmp/ondemand-packaging
+      - name: Build package
+        run: |
+          ./tmp/ondemand-packaging/bin/ood_packaging -w /tmp/work -o /tmp/output -V ${{ matrix.version }} -T $(pwd)
+        env:
+          OOD_PACKAGING_DIST: ${{ matrix.dist }}
+          OOD_PACKAGING_DEBUG: 'true'
+      - name: Upload package
+        uses: actions/upload-artifact@v2
+        with:
+          name: package-2.0-${{ matrix.dist }}
+          path: /tmp/output/${{ matrix.dist }}
+
   ondemand-test:
     needs: [build]
     strategy:
@@ -72,6 +105,56 @@ jobs:
         run: |
           mkdir -p ./tmp
           git clone https://github.com/OSC/ondemand.git /tmp/ondemand
+      - name: Setup OnDemand
+        working-directory: /tmp/ondemand
+        run: |
+          bundle install --path vendor/bundle
+          mkdir -p dist/${{ matrix.dist }}
+          cp /tmp/output/${{ matrix.dist }}/* dist/${{ matrix.dist }}/
+      - name: Build OnDemand package
+        working-directory: /tmp/ondemand
+        run: bundle exec rake package:build[${{ matrix.dist }}]
+        env:
+          VERSION: "${{ matrix.version }}.0"
+          OOD_PACKAGING_DEBUG: 'true'
+      - name: Run OnDemand tests
+        working-directory: /tmp/ondemand
+        run: bundle exec rake test:e2e
+        env:
+          BEAKER_set: ${{ matrix.dist }}
+          OOD_BUILD_REPO: ${{ matrix.version }}
+
+  ondemand-2_0-test:
+    needs: [build-2_0]
+    strategy:
+      fail-fast: false
+      matrix:
+        dist:
+          - el7
+          - el8
+          - ubuntu-18.04
+          - ubuntu-20.04
+        version: ['2.0']
+    runs-on: ubuntu-latest
+    name: Test OnDemand 2.0 on ${{ matrix.dist }}
+    steps:
+      - name: Checkout ${{ github.sha	}}
+        uses: actions/checkout@v2
+      - name: Setup Ruby using Bundler
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '2.7.1'
+          bundler: '2.1.4'
+          bundler-cache: true
+      - name: Download package
+        uses: actions/download-artifact@v2
+        with:
+          name: package-2.0-${{ matrix.dist }}
+          path: /tmp/output/${{ matrix.dist }}
+      - name: Clone ${{ matrix.package }}
+        run: |
+          mkdir -p ./tmp
+          git clone --single-branch --branch release_2.0 https://github.com/OSC/ondemand.git /tmp/ondemand
       - name: Setup OnDemand
         working-directory: /tmp/ondemand
         run: |
