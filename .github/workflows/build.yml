@@ -22,6 +22,10 @@ jobs:
           - x86_64
           - aarch64
         version: ["v2.36.0"]
+        exclude:
+          # Avoid very slow builds
+          - dist: amzn2023
+            arch: aarch64
     runs-on: ${{ matrix.os }}
     name: Build test ${{ matrix.version }} for ${{ matrix.dist }}-${{ matrix.arch }}
     steps:
