@@ -26,7 +26,7 @@ jobs:
     name: Build test ${{ matrix.version }} for ${{ matrix.dist }}
     steps:
       - name: Checkout ${{ github.sha	}}
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           fetch-depth: 0
       - name: Get ondemand-packaging
@@ -66,7 +66,7 @@ jobs:
             OOD_PACKAGING_ARCH: ${{ matrix.arch }}
             OOD_PACKAGING_DEBUG: 'true'
       - name: Upload package
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: package-${{ matrix.dist }}-${{ matrix.arch }}
           path: /tmp/output/${{ matrix.dist }}-${{ matrix.arch }}
@@ -96,7 +96,7 @@ jobs:
     name: Test OnDemand on ${{ matrix.dist }}
     steps:
       - name: Checkout ${{ github.sha	}}
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       - name: Setup Ruby using Bundler
         uses: ruby/setup-ruby@v1
         with:
@@ -104,7 +104,7 @@ jobs:
           bundler: '2.1.4'
           bundler-cache: true
       - name: Download package
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v3
         with:
           name: package-${{ matrix.dist }}-${{ matrix.arch }}
           path: /tmp/output/${{ matrix.dist }}-${{ matrix.arch }}
