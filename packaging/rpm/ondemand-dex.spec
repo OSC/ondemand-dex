@@ -2,6 +2,12 @@
 %{!?package_version: %define package_version 2.36.0}
 
 %define go_version 1.19.2
+%ifarch x86_64
+%define platform amd64
+%endif
+%ifarch aarch64
+%define platform arm64
+%endif
 
 %define debug_package %{nil}
 %define __strip /bin/true
@@ -19,7 +25,7 @@ License:    Apache-2.0
 URL:        https://github.com/dexidp/dex
 Source0:    https://github.com/OSC/ondemand-dex/archive/ondemand-dex-%{package_version}.tar.gz
 Source1:    https://github.com/dexidp/dex/archive/v%{version}.tar.gz
-Source2:    https://dl.google.com/go/go%{go_version}.linux-amd64.tar.gz
+Source2:    https://dl.google.com/go/go%{go_version}.linux-%{platform}.tar.gz
 # Adds session support
 # Original commit: https://github.com/juliantaylor/dex/commit/b3fc3e6c2295c0af166803bdde0977ed170d1d40
 Source5:    https://github.com/OSC/dex/commit/82479354556858119d1ce2e00136cfa6a0028105.patch

@@ -10,6 +10,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
+        os: [ubuntu-22.04]
         dist:
           - el7
           - el8
@@ -17,12 +18,19 @@ jobs:
           - amzn2023
           - ubuntu-20.04
           - ubuntu-22.04
+        arch:
+          - x86_64
+          - aarch64
         version: ["v2.36.0"]
-    runs-on: "ubuntu-latest"
-    name: Build test ${{ matrix.version }} for ${{ matrix.dist }}
+        exclude:
+          # Avoid very slow builds
+          - dist: amzn2023
+            arch: aarch64
+    runs-on: ${{ matrix.os }}
+    name: Build test ${{ matrix.version }} for ${{ matrix.dist }}-${{ matrix.arch }}
     steps:
       - name: Checkout ${{ github.sha	}}
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           fetch-depth: 0
       - name: Get ondemand-packaging
@@ -30,56 +38,49 @@ jobs:
           mkdir -p tmp
           git clone --single-branch --branch main https://github.com/OSC/ondemand-packaging.git tmp/ondemand-packaging
       - name: Build package
+        if: matrix.arch == 'x86_64'
         run: |
           ./tmp/ondemand-packaging/bin/ood_packaging -w /tmp/work -o /tmp/output -V ${{ matrix.version }} -T $(pwd)
         env:
           OOD_PACKAGING_DIST: ${{ matrix.dist }}
+          OOD_PACKAGING_ARCH: ${{ matrix.arch }}
           OOD_PACKAGING_DEBUG: 'true'
-      - name: Upload package
-        uses: actions/upload-artifact@v2
-        with:
-          name: package-${{ matrix.dist }}
-          path: /tmp/output/${{ matrix.dist }}
-
-  build-3_0:
-    strategy:
-      fail-fast: false
-      matrix:
-        dist:
-          - el7
-          - el8
-          - el9
-          - ubuntu-20.04
-          - ubuntu-22.04
-        version: ["v2.36.0"]
-    runs-on: "ubuntu-latest"
-    name: Build test OnDemand 3.0 ${{ matrix.version }} for ${{ matrix.dist }}
-    steps:
-      - name: Checkout ${{ github.sha	}}
-        uses: actions/checkout@v2
-        with:
-          fetch-depth: 0
-      - name: Get ondemand-packaging
+      - name: arch distro
         run: |
-          mkdir -p tmp
-          git clone --single-branch --branch 3.0 https://github.com/OSC/ondemand-packaging.git tmp/ondemand-packaging
+          DISTRO=$(echo "${{ matrix.os }}" | sed 's|\-||g')
+          echo "DISTRO=${DISTRO}" >> $GITHUB_ENV
       - name: Build package
-        run: |
-          ./tmp/ondemand-packaging/bin/ood_packaging -w /tmp/work -o /tmp/output -V ${{ matrix.version }} -T $(pwd)
-        env:
-          OOD_PACKAGING_DIST: ${{ matrix.dist }}
-          OOD_PACKAGING_DEBUG: 'true'
-      - name: Upload package
-        uses: actions/upload-artifact@v2
+        if: matrix.arch != 'x86_64'
+        uses: uraimo/run-on-arch-action@v2
         with:
-          name: package-3.0-${{ matrix.dist }}
-          path: /tmp/output/${{ matrix.dist }}
+          arch: ${{ matrix.arch }}
+          distro: ${{ env.DISTRO }}
+          githubToken: ${{ github.token }}
+          run: |
+            apt update -y
+            apt install -y ruby-bundler ruby-dev git apt-transport-https ca-certificates curl software-properties-common
+            git config --global --add safe.directory $GITHUB_WORKSPACE
+            curl -fsSL https://download.docker.com/linux/ubuntu/gpg | gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
+            echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | tee /etc/apt/sources.list.d/docker.list > /dev/null
+            apt update -y
+            apt install -y docker-ce
+            ./tmp/ondemand-packaging/bin/ood_packaging -w /tmp/work -o /tmp/output -V ${{ matrix.version }} -T $(pwd)
+          env: |
+            OOD_PACKAGING_DIST: ${{ matrix.dist }}
+            OOD_PACKAGING_ARCH: ${{ matrix.arch }}
+            OOD_PACKAGING_DEBUG: 'true'
+      - name: Upload package
+        uses: actions/upload-artifact@v3
+        with:
+          name: package-${{ matrix.dist }}-${{ matrix.arch }}
+          path: /tmp/output/${{ matrix.dist }}-${{ matrix.arch }}
 
   ondemand-test:
     needs: [build]
     strategy:
       fail-fast: false
       matrix:
+        os: [ubuntu-22.04]
         dist:
           - el7
           - el8
@@ -87,12 +88,19 @@ jobs:
           - amzn2023
           - ubuntu-20.04
           - ubuntu-22.04
+        arch:
+          - x86_64
         version: ['3.1']
-    runs-on: ubuntu-latest
-    name: Test OnDemand on ${{ matrix.dist }}
+        include:
+          - dist: el8
+            arch: aarch64
+            os: ubuntu-22.04
+            version: '3.1'
+    runs-on: ${{ matrix.os }}
+    name: Test OnDemand on ${{ matrix.dist }}-${{ matrix.arch }}
     steps:
       - name: Checkout ${{ github.sha	}}
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       - name: Setup Ruby using Bundler
         uses: ruby/setup-ruby@v1
         with:
@@ -100,80 +108,61 @@ jobs:
           bundler: '2.1.4'
           bundler-cache: true
       - name: Download package
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v3
         with:
-          name: package-${{ matrix.dist }}
-          path: /tmp/output/${{ matrix.dist }}
-      - name: Clone ${{ matrix.package }}
+          name: package-${{ matrix.dist }}-${{ matrix.arch }}
+          path: /tmp/output/${{ matrix.dist }}-${{ matrix.arch }}
+      - name: Clone OnDemand
         run: |
-          mkdir -p ./tmp
           git clone https://github.com/OSC/ondemand.git /tmp/ondemand
       - name: Setup OnDemand
         working-directory: /tmp/ondemand
         run: |
           bundle install --path vendor/bundle
-          mkdir -p dist/${{ matrix.dist }}
-          cp /tmp/output/${{ matrix.dist }}/* dist/${{ matrix.dist }}/
+          mkdir -p dist/${{ matrix.dist }}-${{ matrix.arch }}
+          cp /tmp/output/${{ matrix.dist }}-${{ matrix.arch }}/* dist/${{ matrix.dist }}-${{ matrix.arch }}/
       - name: Build OnDemand package
         working-directory: /tmp/ondemand
-        run: bundle exec rake package:build[${{ matrix.dist }}]
+        if: matrix.arch == 'x86_64'
+        run: bundle exec rake package:build[${{ matrix.dist }},${{ matrix.arch }}]
         env:
           VERSION: "${{ matrix.version }}.0"
           OOD_PACKAGING_DEBUG: 'true'
       - name: Run OnDemand tests
         working-directory: /tmp/ondemand
+        if: matrix.arch == 'x86_64'
         run: bundle exec rake test:e2e
         env:
           BEAKER_set: ${{ matrix.dist }}
           OOD_BUILD_REPO: ${{ matrix.version }}
-
-  ondemand-3_0-test:
-    needs: [build-3_0]
-    strategy:
-      fail-fast: false
-      matrix:
-        dist:
-          - el7
-          - el8
-          - el9
-          - ubuntu-20.04
-          - ubuntu-22.04
-        version: ['3.0']
-    runs-on: ubuntu-latest
-    name: Test OnDemand 3.0 on ${{ matrix.dist }}
-    steps:
-      - name: Checkout ${{ github.sha	}}
-        uses: actions/checkout@v2
-      - name: Setup Ruby using Bundler
-        uses: ruby/setup-ruby@v1
-        with:
-          ruby-version: '3.0.4'
-          bundler: '2.1.4'
-          bundler-cache: true
-      - name: Download package
-        uses: actions/download-artifact@v2
-        with:
-          name: package-3.0-${{ matrix.dist }}
-          path: /tmp/output/${{ matrix.dist }}
-      - name: Clone ${{ matrix.package }}
+      - name: arch distro
         run: |
-          mkdir -p ./tmp
-          git clone --single-branch --branch release_3.0 https://github.com/OSC/ondemand.git /tmp/ondemand
-      - name: Setup OnDemand
-        working-directory: /tmp/ondemand
-        run: |
-          bundle install --path vendor/bundle
-          mkdir -p dist/${{ matrix.dist }}
-          cp /tmp/output/${{ matrix.dist }}/* dist/${{ matrix.dist }}/
-      - name: Build OnDemand package
-        working-directory: /tmp/ondemand
-        run: bundle exec rake package:build[${{ matrix.dist }}]
-        env:
-          VERSION: "${{ matrix.version }}.0"
-          OOD_PACKAGING_DEBUG: 'true'
-      - name: Run OnDemand tests
-        working-directory: /tmp/ondemand
-        run: bundle exec rake test:e2e
-        env:
-          BEAKER_set: ${{ matrix.dist }}
-          OOD_BUILD_REPO: ${{ matrix.version }}
+          DISTRO=$(echo "${{ matrix.os }}" | sed 's|\-||g')
+          echo "DISTRO=${DISTRO}" >> $GITHUB_ENV
+      - name: Test OnDemand
+        if: matrix.arch != 'x86_64'
+        uses: uraimo/run-on-arch-action@v2
+        with:
+          arch: ${{ matrix.arch }}
+          distro: ${{ env.DISTRO }}
+          githubToken: ${{ github.token }}
+          dockerRunArgs: |
+            --volume /tmp/ondemand:/tmp/ondemand
+          install: |
+            apt update -y
+            apt install -y ruby-bundler ruby-dev git apt-transport-https ca-certificates curl software-properties-common
+            git config --global --add safe.directory $GITHUB_WORKSPACE
+            curl -fsSL https://download.docker.com/linux/ubuntu/gpg | gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
+            echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | tee /etc/apt/sources.list.d/docker.list > /dev/null
+            apt update -y
+            apt install -y docker-ce
+          run: |
+            pushd /tmp/ondemand
+            bundle install --path vendor/bundle
+            bundle exec rake package:build[${{ matrix.dist }},${{ matrix.arch }}]
+            bundle exec rake test:e2e
+          env: |
+            VERSION: "${{ matrix.version }}.0"
+            OOD_PACKAGING_DEBUG: 'true'
+            BEAKER_set: ${{ matrix.dist }}
+            OOD_BUILD_REPO: ${{ matrix.version }}

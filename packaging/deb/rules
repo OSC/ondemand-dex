@@ -17,6 +17,14 @@ export DESTDIR = $(CURDIR)/debian/ondemand-dex
 export CONFDIR = $(DESTDIR)/etc/ood/dex
 export UNITDIR = $(DESTDIR)/lib/systemd/system
 export CONF_UNITDIR = $(DESTDIR)/etc/systemd/system
+export ARCH = $(shell uname -p)
+ifeq ($(ARCH),x86_64)
+export PLATFORM = amd64
+endif
+ifeq ($(ARCH),aarch64)
+export PLATFORM = arm64
+endif
+
 
 # main packaging script based on dh7 syntax
 %:
@@ -27,7 +35,7 @@ override_dh_auto_configure:
 	wget -q -O $(BUILDDIR)/dex.tar.gz https://github.com/dexidp/dex/archive/v$(DEX_VERSION).tar.gz
 	tar -C $(BUILDDIR) -xzf $(BUILDDIR)/dex.tar.gz
 	wget -q -O $(BUILDDIR)/session.patch https://github.com/OSC/dex/commit/$(SESSION_COMMIT).patch
-	wget -q -O /tmp/go.tar.gz https://dl.google.com/go/go$(GO_VERSION).linux-amd64.tar.gz
+	wget -q -O /tmp/go.tar.gz https://dl.google.com/go/go$(GO_VERSION).linux-$(PLATFORM).tar.gz
 	tar -C /tmp -xzf /tmp/go.tar.gz
 
 override_dh_auto_build:
