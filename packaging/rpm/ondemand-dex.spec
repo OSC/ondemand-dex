@@ -8,6 +8,9 @@
 %ifarch aarch64
 %define platform arm64
 %endif
+%ifarch ppc64le
+%define platform ppc64le
+%endif
 
 %define debug_package %{nil}
 %define __strip /bin/true
@@ -49,10 +52,10 @@ A federated OpenID Connect provider packaged for Open OnDemand
 %build
 export PATH=$PATH:%{_builddir}/go/bin
 cd %{_builddir}/%{appname}-%{version}
-%__make build
+%__make build -j 4
 %__mv bin/dex bin/dex-orig
 %__patch -p1 < %{SOURCE5}
-%__make build
+%__make build -j 4
 %__mv bin/dex bin/dex-session
 %__mv bin/dex-orig bin/dex
 

@@ -19,21 +19,24 @@ build:
     - if: $CI_COMMIT_TAG
     - if: '$CI_COMMIT_BRANCH != "main" && $CI_COMMIT_TAG == null'
   script:
-    - export CI_COMMIT_TAG="${CI_COMMIT_TAG:-$VERSION}"
     - git clone --single-branch --branch main https://github.com/OSC/ondemand-packaging.git $CI_PROJECT_DIR/tmp/ondemand-packaging
-    - ./tmp/ondemand-packaging/bin/ood_packaging -w $CI_PROJECT_DIR/tmp/work -o $CI_PROJECT_DIR/tmp/output -V $CI_COMMIT_TAG -T $CI_PROJECT_DIR
+    - ./tmp/ondemand-packaging/bin/ood_packaging -w $CI_PROJECT_DIR/tmp/work -o $CI_PROJECT_DIR/tmp/output -V $VERSION -T $CI_PROJECT_DIR
   parallel:
     matrix:
       - OOD_PACKAGING_DIST: [el7, el8]
-        OOD_PACKAGING_ARCH: [x86_64, aarch64]
+        OOD_PACKAGING_ARCH: [x86_64, aarch64, ppc64le]
         OOD_PACKAGING_GPG_PRIVATE_KEY: /systems/osc_certs/gpg/ondemand/ondemand.sec
-      - OOD_PACKAGING_DIST: [el9, amzn2023, ubuntu-20.04, ubuntu-22.04]
+      - OOD_PACKAGING_DIST: [el9]
+        OOD_PACKAGING_ARCH: [x86_64, aarch64, ppc64le]
+      - OOD_PACKAGING_DIST: [ubuntu-20.04, ubuntu-22.04]
+        OOD_PACKAGING_ARCH: [x86_64, aarch64]
+      - OOD_PACKAGING_DIST: [amzn2023]
         OOD_PACKAGING_ARCH: [x86_64, aarch64]
   timeout: 2h
   artifacts:
     paths:
       - tmp/output
-    name: "$CI_PROJECT_NAME-$CI_COMMIT_TAG"
+    name: "$CI_PROJECT_NAME-$VERSION"
 
 deploy:
   stage: deploy

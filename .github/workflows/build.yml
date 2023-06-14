@@ -21,11 +21,18 @@ jobs:
         arch:
           - x86_64
           - aarch64
+          - ppc64le
         version: ["v2.36.0"]
         exclude:
           # Avoid very slow builds
           - dist: amzn2023
             arch: aarch64
+          - dist: amzn2023
+            arch: ppc64le
+          - dist: ubuntu-20.04
+            arch: ppc64le
+          - dist: ubuntu-22.04
+            arch: ppc64le
     runs-on: ${{ matrix.os }}
     name: Build test ${{ matrix.version }} for ${{ matrix.dist }}-${{ matrix.arch }}
     steps:
@@ -94,6 +101,10 @@ jobs:
         include:
           - dist: el8
             arch: aarch64
+            os: ubuntu-22.04
+            version: '3.1'
+          - dist: el8
+            arch: ppc64le
             os: ubuntu-22.04
             version: '3.1'
     runs-on: ${{ matrix.os }}
