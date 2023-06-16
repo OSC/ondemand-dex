@@ -24,6 +24,9 @@ endif
 ifeq ($(ARCH),aarch64)
 export PLATFORM = arm64
 endif
+ifeq ($(ARCH),ppc64le)
+export PLATFORM = ppc64le
+endif
 
 
 # main packaging script based on dh7 syntax

@@ -21,11 +21,18 @@ jobs:
         arch:
           - x86_64
           - aarch64
+          - ppc64le
         version: ["v2.36.0"]
         exclude:
           # Avoid very slow builds
           - dist: amzn2023
             arch: aarch64
+          - dist: amzn2023
+            arch: ppc64le
+          - dist: ubuntu-20.04
+            arch: ppc64le
+          - dist: ubuntu-22.04
+            arch: ppc64le
     runs-on: ${{ matrix.os }}
     name: Build test ${{ matrix.version }} for ${{ matrix.dist }}-${{ matrix.arch }}
     steps:
@@ -91,11 +98,16 @@ jobs:
         arch:
           - x86_64
         version: ['3.1']
-        include:
-          - dist: el8
-            arch: aarch64
-            os: ubuntu-22.04
-            version: '3.1'
+        # Enable once work out e2e tests for non-x86
+        #include:
+        #  - dist: el8
+        #    arch: aarch64
+        #    os: ubuntu-22.04
+        #    version: '3.1'
+        #  - dist: el8
+        #    arch: ppc64le
+        #    os: ubuntu-22.04
+        #    version: '3.1'
     runs-on: ${{ matrix.os }}
     name: Test OnDemand on ${{ matrix.dist }}-${{ matrix.arch }}
     steps:
@@ -150,14 +162,16 @@ jobs:
             --volume /tmp/ondemand:/tmp/ondemand
           install: |
             apt update -y
-            apt install -y ruby-bundler ruby-dev git apt-transport-https ca-certificates curl software-properties-common
-            git config --global --add safe.directory $GITHUB_WORKSPACE
+            apt install -y ruby-bundler ruby-dev build-essential git \
+              apt-transport-https ca-certificates curl software-properties-common \
+              chromium-chromedriver
             curl -fsSL https://download.docker.com/linux/ubuntu/gpg | gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
             echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | tee /etc/apt/sources.list.d/docker.list > /dev/null
             apt update -y
             apt install -y docker-ce
           run: |
             pushd /tmp/ondemand
+            git config --global --add safe.directory $(pwd)
             bundle install --path vendor/bundle
             bundle exec rake package:build[${{ matrix.dist }},${{ matrix.arch }}]
             bundle exec rake test:e2e
