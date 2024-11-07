@@ -23,7 +23,7 @@ jobs:
           - x86_64
           - aarch64
           - ppc64le
-        version: ["v2.36.0"]
+        version: ["v2.41.1"]
         exclude:
           # Avoid very slow builds
           - dist: amzn2023

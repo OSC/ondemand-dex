@@ -7,7 +7,7 @@ stages:
 
 variables:
   GIT_STRATEGY: clone
-  VERSION: v2.36.0
+  VERSION: v2.41.1
   OOD_BUILD_REPO: '4.0'
   OOD_PACKAGING_DEBUG: 'true'
   OOD_PACKAGING_GPG_PRIVATE_KEY: /systems/osc_certs/gpg/ondemand/ondemand-sha512.sec
