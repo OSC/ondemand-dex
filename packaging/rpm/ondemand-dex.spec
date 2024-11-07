@@ -1,7 +1,7 @@
 %{!?package_release: %define package_release 1}
-%{!?package_version: %define package_version 2.36.0}
+%{!?package_version: %define package_version 2.41.1}
 
-%define go_version 1.19.2
+%define go_version 1.21.13
 %ifarch x86_64
 %define platform amd64
 %endif
@@ -31,7 +31,7 @@ Source1:    https://github.com/dexidp/dex/archive/v%{version}.tar.gz
 Source2:    https://dl.google.com/go/go%{go_version}.linux-%{platform}.tar.gz
 # Adds session support
 # Original commit: https://github.com/juliantaylor/dex/commit/b3fc3e6c2295c0af166803bdde0977ed170d1d40
-Source5:    https://github.com/OSC/dex/commit/82479354556858119d1ce2e00136cfa6a0028105.patch
+Source5:    https://github.com/OSC/dex/commit/b7c545653bff08205a503447485254a31895d42e.patch
 
 BuildRequires:  ondemand-scldevel
 BuildRequires:  systemd

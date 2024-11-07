@@ -23,7 +23,7 @@ jobs:
           - x86_64
           - aarch64
           - ppc64le
-        version: ["v2.36.0"]
+        version: ["v2.41.1"]
         exclude:
           # Avoid very slow builds
           - dist: amzn2023
@@ -38,7 +38,7 @@ jobs:
     name: Build test ${{ matrix.version }} for ${{ matrix.dist }}-${{ matrix.arch }}
     steps:
       - name: Checkout ${{ github.sha	}}
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
       - name: Get ondemand-packaging
@@ -78,7 +78,7 @@ jobs:
             OOD_PACKAGING_ARCH: ${{ matrix.arch }}
             OOD_PACKAGING_DEBUG: 'true'
       - name: Upload package
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: package-${{ matrix.dist }}-${{ matrix.arch }}
           path: /tmp/output/${{ matrix.dist }}-${{ matrix.arch }}
@@ -99,22 +99,22 @@ jobs:
           - debian-12
         arch:
           - x86_64
-        version: ['3.1']
+        version: ['4.0']
         # Enable once work out e2e tests for non-x86
         #include:
         #  - dist: el8
         #    arch: aarch64
         #    os: ubuntu-22.04
-        #    version: '3.1'
+        #    version: '4.0'
         #  - dist: el8
         #    arch: ppc64le
         #    os: ubuntu-22.04
-        #    version: '3.1'
+        #    version: '4.0'
     runs-on: ${{ matrix.os }}
     name: Test OnDemand on ${{ matrix.dist }}-${{ matrix.arch }}
     steps:
       - name: Checkout ${{ github.sha	}}
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Setup Ruby using Bundler
         uses: ruby/setup-ruby@v1
         with:
@@ -122,7 +122,7 @@ jobs:
           bundler: '2.1.4'
           bundler-cache: true
       - name: Download package
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: package-${{ matrix.dist }}-${{ matrix.arch }}
           path: /tmp/output/${{ matrix.dist }}-${{ matrix.arch }}
