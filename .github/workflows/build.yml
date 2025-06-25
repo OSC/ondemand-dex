@@ -35,6 +35,15 @@ jobs:
             arch: ppc64le
           - dist: debian-12
             arch: ppc64le
+          # TODO: Remove once things get upgraded to newer versions to validate
+          # if still fails
+          # These segfault on Github Actions
+          - dist: ubuntu-22.04
+            arch: aarch64
+          - dist: ubuntu-24.04
+            arch: aarch64
+          - dist: debian-12
+            arch: aarch64
     runs-on: ${{ matrix.os }}
     name: Build test ${{ matrix.version }} for ${{ matrix.dist }}-${{ matrix.arch }}
     steps:
