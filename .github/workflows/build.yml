@@ -31,6 +31,10 @@ jobs:
             arch: ppc64le
           - dist: ubuntu-22.04
             arch: ppc64le
+          - dist: ubuntu-24.04
+            arch: ppc64le
+          - dist: debian-12
+            arch: ppc64le
     runs-on: ${{ matrix.os }}
     name: Build test ${{ matrix.version }} for ${{ matrix.dist }}-${{ matrix.arch }}
     steps:
