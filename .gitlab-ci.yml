@@ -49,3 +49,4 @@ deploy:
     - git clone --single-branch --branch main https://github.com/OSC/ondemand-packaging.git $CI_PROJECT_DIR/tmp/ondemand-packaging
     - ./tmp/ondemand-packaging/release.py --debug --pkey /systems/osc_certs/ssh/ondemand-packaging/id_rsa -c main ./tmp/output/*
     - ./tmp/ondemand-packaging/release.py --debug --pkey /systems/osc_certs/ssh/ondemand-packaging/id_rsa -c build -r $OOD_BUILD_REPO ./tmp/output/*
+    - ./tmp/ondemand-packaging/release.py --debug --pkey /systems/osc_certs/ssh/ondemand-packaging/id_rsa -c staging -r $OOD_BUILD_REPO ./tmp/output/*
