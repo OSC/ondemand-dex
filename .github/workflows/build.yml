@@ -127,8 +127,8 @@ jobs:
       - name: Setup Ruby using Bundler
         uses: ruby/setup-ruby@v1
         with:
-          ruby-version: '3.0.4'
-          bundler: '2.1.4'
+          ruby-version: '3.1.2'
+          bundler: '2.5.23'
           bundler-cache: true
       - name: Download package
         uses: actions/download-artifact@v4
