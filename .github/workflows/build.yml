@@ -15,7 +15,6 @@ jobs:
           - el8
           - el9
           - amzn2023
-          - ubuntu-20.04
           - ubuntu-22.04
           - ubuntu-24.04
           - debian-12
@@ -30,10 +29,21 @@ jobs:
             arch: aarch64
           - dist: amzn2023
             arch: ppc64le
-          - dist: ubuntu-20.04
-            arch: ppc64le
           - dist: ubuntu-22.04
             arch: ppc64le
+          - dist: ubuntu-24.04
+            arch: ppc64le
+          - dist: debian-12
+            arch: ppc64le
+          # TODO: Remove once things get upgraded to newer versions to validate
+          # if still fails
+          # These segfault on Github Actions
+          - dist: ubuntu-22.04
+            arch: aarch64
+          - dist: ubuntu-24.04
+            arch: aarch64
+          - dist: debian-12
+            arch: aarch64
     runs-on: ${{ matrix.os }}
     name: Build test ${{ matrix.version }} for ${{ matrix.dist }}-${{ matrix.arch }}
     steps:
@@ -93,7 +103,6 @@ jobs:
           - el8
           - el9
           - amzn2023
-          - ubuntu-20.04
           - ubuntu-22.04
           - ubuntu-24.04
           - debian-12
@@ -118,8 +127,8 @@ jobs:
       - name: Setup Ruby using Bundler
         uses: ruby/setup-ruby@v1
         with:
-          ruby-version: '3.0.4'
-          bundler: '2.1.4'
+          ruby-version: '3.1.2'
+          bundler: '2.5.23'
           bundler-cache: true
       - name: Download package
         uses: actions/download-artifact@v4
