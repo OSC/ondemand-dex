@@ -6,8 +6,8 @@
 # Output every command that modifies files on the build system.
 export DH_VERBOSE = 1
 #
-export SESSION_COMMIT = b7c545653bff08205a503447485254a31895d42e
-export GO_VERSION = 1.21.13
+export SESSION_COMMIT = 6bb420ddb82613edce6e8b24a293da64006a5da3
+export GO_VERSION = 1.25.1
 export BUILDDIR = $(CURDIR)/build
 export DEX_VERSION = $(VERSION:v%=%)
 export GOPATH = /tmp/go
