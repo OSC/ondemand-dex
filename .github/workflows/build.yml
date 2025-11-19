@@ -26,6 +26,8 @@ jobs:
         version: ["v2.44.0"]
         exclude:
           # Avoid very slow builds
+          - dist: el10
+            arch: aarch64
           - dist: amzn2023
             arch: aarch64
           - dist: amzn2023
