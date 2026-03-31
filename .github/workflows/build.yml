@@ -16,7 +16,6 @@ jobs:
           - el9
           - el10
           - amzn2023
-          - ubuntu-22.04
           - ubuntu-24.04
           - debian-12
           - debian-13
@@ -33,8 +32,6 @@ jobs:
             arch: aarch64
           - dist: amzn2023
             arch: ppc64le
-          - dist: ubuntu-22.04
-            arch: ppc64le
           - dist: ubuntu-24.04
             arch: ppc64le
           - dist: debian-12
@@ -44,8 +41,6 @@ jobs:
           # TODO: Remove once things get upgraded to newer versions to validate
           # if still fails
           # These segfault on Github Actions
-          - dist: ubuntu-22.04
-            arch: aarch64
           - dist: ubuntu-24.04
             arch: aarch64
           - dist: debian-12
@@ -112,7 +107,6 @@ jobs:
           - el9
           - el10
           - amzn2023
-          - ubuntu-22.04
           - ubuntu-24.04
           - debian-12
           - debian-13
