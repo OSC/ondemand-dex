@@ -19,11 +19,12 @@ jobs:
           - ubuntu-22.04
           - ubuntu-24.04
           - debian-12
+          - debian-13
         arch:
           - x86_64
           - aarch64
           - ppc64le
-        version: ["v2.44.0"]
+        version: ["v2.45.1"]
         exclude:
           # Avoid very slow builds
           - dist: el10
@@ -38,6 +39,8 @@ jobs:
             arch: ppc64le
           - dist: debian-12
             arch: ppc64le
+          - dist: debian-13
+            arch: ppc64le
           # TODO: Remove once things get upgraded to newer versions to validate
           # if still fails
           # These segfault on Github Actions
@@ -46,6 +49,8 @@ jobs:
           - dist: ubuntu-24.04
             arch: aarch64
           - dist: debian-12
+            arch: aarch64
+          - dist: debian-13
             arch: aarch64
     runs-on: ${{ matrix.os }}
     name: Build test ${{ matrix.version }} for ${{ matrix.dist }}-${{ matrix.arch }}
@@ -110,9 +115,10 @@ jobs:
           - ubuntu-22.04
           - ubuntu-24.04
           - debian-12
+          - debian-13
         arch:
           - x86_64
-        version: ['4.1']
+        version: ['4.2']
         # Enable once work out e2e tests for non-x86
         #include:
         #  - dist: el8

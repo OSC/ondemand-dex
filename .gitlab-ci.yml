@@ -7,8 +7,8 @@ stages:
 
 variables:
   GIT_STRATEGY: clone
-  VERSION: v2.44.0
-  OOD_BUILD_REPO: '4.1'
+  VERSION: v2.45.1
+  OOD_BUILD_REPO: '4.2'
   OOD_PACKAGING_DEBUG: 'true'
   OOD_PACKAGING_GPG_PRIVATE_KEY: /systems/osc_certs/gpg/ondemand/ondemand-sha512.sec
   OOD_PACKAGING_GPG_PASSPHRASE: /systems/osc_certs/gpg/ondemand/.gpgpass
@@ -31,7 +31,7 @@ build:
       # el10 aarch64 builds are timing out so skip those builds
       - OOD_PACKAGING_DIST: [el10]
         OOD_PACKAGING_ARCH: [x86_64, ppc64le]
-      - OOD_PACKAGING_DIST: [ubuntu-22.04, ubuntu-24.04, debian-12]
+      - OOD_PACKAGING_DIST: [ubuntu-22.04, ubuntu-24.04, debian-12, debian-13]
         OOD_PACKAGING_ARCH: [x86_64, aarch64]
       # Amazon Linux 2023 aarch64 builds are timing out so skip those builds
       - OOD_PACKAGING_DIST: [amzn2023]
