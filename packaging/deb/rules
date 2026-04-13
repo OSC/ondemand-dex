@@ -45,6 +45,7 @@ override_dh_auto_build:
 	cd $(DEXDIR) ; make build
 	mv $(DEXDIR)/bin/dex $(DEXDIR)/bin/dex-orig
 	cd $(DEXDIR) ; patch -p1 < $(BUILDDIR)/session.patch
+	cd $(DEXDIR) ; patch -p1 < $(CURDIR)/packaging/deb/patches/0001-saml-useridattr-fallback.patch
 	cd $(DEXDIR) ; make build
 	mv $(DEXDIR)/bin/dex $(DEXDIR)/bin/dex-session
 

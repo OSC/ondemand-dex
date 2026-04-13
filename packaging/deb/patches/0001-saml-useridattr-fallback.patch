@@ -1,0 +1,170 @@
+diff --git a/connector/saml/saml.go b/connector/saml/saml.go
+index 1ab8e544..c3718207 100644
+--- a/connector/saml/saml.go
++++ b/connector/saml/saml.go
+@@ -83,6 +83,9 @@ type Config struct {
+ 	InsecureSkipSignatureValidation bool `json:"insecureSkipSignatureValidation"`
+ 
+ 	// Assertion attribute names to lookup various claims with.
++	// If UserIDAttr is set, Dex will use that attribute as the stable internal
++	// user ID instead of requiring Subject/NameID in the SAML assertion.
++	UserIDAttr   string `json:"userIDAttr"`
+ 	UsernameAttr string `json:"usernameAttr"`
+ 	EmailAttr    string `json:"emailAttr"`
+ 	GroupsAttr   string `json:"groupsAttr"`
+@@ -152,6 +155,7 @@ func (c *Config) openConnector(logger *slog.Logger) (*provider, error) {
+ 		ssoIssuer:     c.SSOIssuer,
+ 		ssoURL:        c.SSOURL,
+ 		now:           time.Now,
++		userIDAttr:    c.UserIDAttr,
+ 		usernameAttr:  c.UsernameAttr,
+ 		emailAttr:     c.EmailAttr,
+ 		groupsAttr:    c.GroupsAttr,
+@@ -241,6 +245,7 @@ type provider struct {
+ 	validator *dsig.ValidationContext
+ 
+ 	// Attribute mappings
++	userIDAttr    string
+ 	usernameAttr  string
+ 	emailAttr     string
+ 	groupsAttr    string
+@@ -370,15 +375,6 @@ func (p *provider) HandlePOST(s connector.Scopes, samlResponse, inResponseTo str
+ 		}
+ 	}
+ 
+-	switch {
+-	case subject.NameID != nil:
+-		if ident.UserID = subject.NameID.Value; ident.UserID == "" {
+-			return ident, fmt.Errorf("element NameID does not contain a value")
+-		}
+-	default:
+-		return ident, fmt.Errorf("subject does not contain an NameID element")
+-	}
+-
+ 	// After verifying the assertion, map data in the attribute statements to
+ 	// various user info.
+ 	attributes := assertion.AttributeStatement
+@@ -391,6 +387,19 @@ func (p *provider) HandlePOST(s connector.Scopes, samlResponse, inResponseTo str
+ 	// send us the correct attributes.
+ 	p.logger.Info("parsed and verified saml response attributes", "attributes", attributes)
+ 
++	switch {
++	case p.userIDAttr != "":
++		if ident.UserID, _ = attributes.get(p.userIDAttr); ident.UserID == "" {
++			return ident, fmt.Errorf("no attribute with name %q: %s", p.userIDAttr, attributes.names())
++		}
++	case subject.NameID != nil:
++		if ident.UserID = subject.NameID.Value; ident.UserID == "" {
++			return ident, fmt.Errorf("element NameID does not contain a value")
++		}
++	default:
++		return ident, fmt.Errorf("subject does not contain a NameID element and no userIDAttr was configured")
++	}
++
+ 	// Grab the email.
+ 	if ident.Email, _ = attributes.get(p.emailAttr); ident.Email == "" {
+ 		return ident, fmt.Errorf("no attribute with name %q: %s", p.emailAttr, attributes.names())
+diff --git a/connector/saml/saml_test.go b/connector/saml/saml_test.go
+index f67e3e8b..72869315 100644
+--- a/connector/saml/saml_test.go
++++ b/connector/saml/saml_test.go
+@@ -9,6 +9,7 @@ import (
+ 	"log/slog"
+ 	"os"
+ 	"sort"
++	"strings"
+ 	"testing"
+ 	"time"
+ 
+@@ -49,11 +50,14 @@ type responseTest struct {
+ 	entityIssuer string
+ 
+ 	// Attribute customization.
+-	usernameAttr  string
+-	emailAttr     string
+-	groupsAttr    string
+-	allowedGroups []string
+-	filterGroups  bool
++	userIDAttr                      string
++	usernameAttr                    string
++	emailAttr                       string
++	groupsAttr                      string
++	allowedGroups                   []string
++	filterGroups                    bool
++	insecureSkipSignatureValidation bool
++	respData                        []byte
+ 
+ 	// Expected outcome of the test.
+ 	wantErr   bool
+@@ -247,6 +251,31 @@ func TestBadStatus(t *testing.T) {
+ 	test.run(t)
+ }
+ 
++func TestUserIDAttrWithoutNameID(t *testing.T) {
++	resp, err := os.ReadFile("testdata/good-resp.tmpl")
++	if err != nil {
++		t.Fatal(err)
++	}
++
++	test := responseTest{
++		respData:                        []byte(strings.Replace(string(resp), `<saml2:NameID Format="urn:oasis:names:tc:SAML:2.0:nameid-format:persistent">eric.chiang+okta@coreos.com</saml2:NameID>`+"\n", "", 1)),
++		now:                             "2017-04-04T04:34:59.330Z",
++		userIDAttr:                      "email",
++		usernameAttr:                    "Name",
++		emailAttr:                       "email",
++		inResponseTo:                    "6zmm5mguyebwvajyf2sdwwcw6m",
++		redirectURI:                     "http://127.0.0.1:5556/dex/callback",
++		insecureSkipSignatureValidation: true,
++		wantIdent: connector.Identity{
++			UserID:        "eric.chiang+okta@coreos.com",
++			Username:      "Eric",
++			Email:         "eric.chiang+okta@coreos.com",
++			EmailVerified: true,
++		},
++	}
++	test.run(t)
++}
++
+ func TestInvalidCA(t *testing.T) {
+ 	test := responseTest{
+ 		caFile:       "testdata/bad-ca.crt", // Not the CA that signed this response.
+@@ -405,14 +434,16 @@ func loadCert(ca string) (*x509.Certificate, error) {
+ 
+ func (r responseTest) run(t *testing.T) {
+ 	c := Config{
+-		CA:            r.caFile,
+-		UsernameAttr:  r.usernameAttr,
+-		EmailAttr:     r.emailAttr,
+-		GroupsAttr:    r.groupsAttr,
+-		RedirectURI:   r.redirectURI,
+-		EntityIssuer:  r.entityIssuer,
+-		AllowedGroups: r.allowedGroups,
+-		FilterGroups:  r.filterGroups,
++		CA:                              r.caFile,
++		InsecureSkipSignatureValidation: r.insecureSkipSignatureValidation,
++		UserIDAttr:                      r.userIDAttr,
++		UsernameAttr:                    r.usernameAttr,
++		EmailAttr:                       r.emailAttr,
++		GroupsAttr:                      r.groupsAttr,
++		RedirectURI:                     r.redirectURI,
++		EntityIssuer:                    r.entityIssuer,
++		AllowedGroups:                   r.allowedGroups,
++		FilterGroups:                    r.filterGroups,
+ 		// Never logging in, don't need this.
+ 		SSOURL: "http://foo.bar/",
+ 	}
+@@ -426,9 +457,12 @@ func (r responseTest) run(t *testing.T) {
+ 		t.Fatal(err)
+ 	}
+ 	conn.now = func() time.Time { return now }
+-	resp, err := os.ReadFile(r.respFile)
+-	if err != nil {
+-		t.Fatal(err)
++	resp := r.respData
++	if resp == nil {
++		resp, err = os.ReadFile(r.respFile)
++		if err != nil {
++			t.Fatal(err)
++		}
+ 	}
+ 	samlResp := base64.StdEncoding.EncodeToString(resp)

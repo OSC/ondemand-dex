@@ -32,6 +32,9 @@ Source2:    https://dl.google.com/go/go%{go_version}.linux-%{platform}.tar.gz
 # Adds session support
 # Original commit: https://github.com/juliantaylor/dex/commit/b3fc3e6c2295c0af166803bdde0977ed170d1d40
 Source5:    https://github.com/OSC/dex/commit/55fcbfa7ab03dbf9f3ef7884773e5834803294a9.patch
+# Allow SAML connectors to use an attribute as the stable user ID when NameID
+# is not returned by the IdP.
+Source6:    0001-saml-useridattr-fallback.patch
 
 BuildRequires:  ondemand-scldevel
 BuildRequires:  systemd
@@ -55,6 +58,7 @@ cd %{_builddir}/%{appname}-%{version}
 %__make build -j 4
 %__mv bin/dex bin/dex-orig
 %__patch -p1 < %{SOURCE5}
+%__patch -p1 < %{SOURCE6}
 %__make build -j 4
 %__mv bin/dex bin/dex-session
 %__mv bin/dex-orig bin/dex
