@@ -1,6 +1,13 @@
 %{!?package_release: %define package_release 1}
 %{!?package_version: %define package_version 2.41.1}
 
+%if 0%{package_release} == 1
+%define tar_version %{package_version}
+%endif
+%if 0%{package_release} != 1
+%define tar_version %{package_version}-%{package_release}
+%endif
+
 %define go_version 1.25.8
 %ifarch x86_64
 %define platform amd64
@@ -44,7 +51,7 @@ Requires:       %{?scl_ondemand_prefix_apache}mod_auth_openidc
 A federated OpenID Connect provider packaged for Open OnDemand
 
 %prep
-%setup -q -n ondemand-%{appname}-%{version}
+%setup -q -n ondemand-%{appname}-%{tar_version}
 %__tar -C %{_builddir} -xzf %{SOURCE1}
 %__tar -C %{_builddir} -xzf %{SOURCE2}
 
