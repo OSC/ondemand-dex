@@ -54,6 +54,8 @@ jobs:
             arch: aarch64
     runs-on: ${{ matrix.os }}
     name: Build test ${{ matrix.version }} for ${{ matrix.dist }}-${{ matrix.arch }}
+    env:
+      OOD_REPO_PASSWORD: ${{ secrets.OOD_OSC_EARLY_ACCESS_PASSWORD }}
     steps:
       - name: Checkout ${{ github.sha	}}
         uses: actions/checkout@v4
@@ -131,6 +133,8 @@ jobs:
         #    version: '4.0'
     runs-on: ${{ matrix.os }}
     name: Test OnDemand on ${{ matrix.dist }}-${{ matrix.arch }}
+    env:
+      OOD_REPO_PASSWORD: ${{ secrets.OOD_OSC_EARLY_ACCESS_PASSWORD }}
     steps:
       - name: Checkout ${{ github.sha	}}
         uses: actions/checkout@v4
