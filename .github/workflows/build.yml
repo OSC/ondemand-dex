@@ -155,7 +155,7 @@ jobs:
       - name: Setup OnDemand
         working-directory: /tmp/ondemand
         run: |
-          bundle install --path vendor/bundle --without e2e
+          bundle install --path vendor/bundle
           mkdir -p dist/${{ matrix.dist }}-${{ matrix.arch }}
           cp /tmp/output/${{ matrix.dist }}-${{ matrix.arch }}/* dist/${{ matrix.dist }}-${{ matrix.arch }}/
       - name: Build OnDemand package
