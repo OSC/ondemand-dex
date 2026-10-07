@@ -8,7 +8,7 @@ stages:
 variables:
   GIT_STRATEGY: clone
   VERSION: v2.45.1
-  OOD_BUILD_REPO: '4.2'
+  OOD_STAGING_REPO: '4.2'
   OOD_PACKAGING_DEBUG: 'true'
   OOD_PACKAGING_GPG_PRIVATE_KEY: /systems/osc_certs/gpg/ondemand/ondemand-sha512.sec
   OOD_PACKAGING_GPG_PASSPHRASE: /systems/osc_certs/gpg/ondemand/.gpgpass
@@ -48,5 +48,4 @@ deploy:
     - if: $CI_COMMIT_TAG
   script:
     - git clone --single-branch --branch main https://github.com/OSC/ondemand-packaging.git $CI_PROJECT_DIR/tmp/ondemand-packaging
-    - ./tmp/ondemand-packaging/release.py --debug --pkey /systems/osc_certs/ssh/ondemand-packaging/id_rsa -c main ./tmp/output/*
-    - ./tmp/ondemand-packaging/release.py --debug --pkey /systems/osc_certs/ssh/ondemand-packaging/id_rsa -c staging -r $OOD_BUILD_REPO ./tmp/output/*
+    - ./tmp/ondemand-packaging/release.py --debug --pkey /systems/osc_certs/ssh/ondemand-packaging/id_rsa -c staging -r $OOD_STAGING_REPO ./tmp/output/*
