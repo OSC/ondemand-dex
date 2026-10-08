@@ -54,6 +54,8 @@ jobs:
             arch: aarch64
     runs-on: ${{ matrix.os }}
     name: Build test ${{ matrix.version }} for ${{ matrix.dist }}-${{ matrix.arch }}
+    env:
+      OOD_REPO_PASSWORD: ${{ secrets.OOD_OSC_EARLY_ACCESS_PASSWORD }}
     steps:
       - name: Checkout ${{ github.sha	}}
         uses: actions/checkout@v4
@@ -131,13 +133,15 @@ jobs:
         #    version: '4.0'
     runs-on: ${{ matrix.os }}
     name: Test OnDemand on ${{ matrix.dist }}-${{ matrix.arch }}
+    env:
+      OOD_REPO_PASSWORD: ${{ secrets.OOD_OSC_EARLY_ACCESS_PASSWORD }}
     steps:
       - name: Checkout ${{ github.sha	}}
         uses: actions/checkout@v4
       - name: Setup Ruby using Bundler
         uses: ruby/setup-ruby@v1
         with:
-          ruby-version: '3.1.2'
+          ruby-version: '3.3'
           bundler: '2.5.23'
           bundler-cache: true
       - name: Download package
@@ -151,7 +155,7 @@ jobs:
       - name: Setup OnDemand
         working-directory: /tmp/ondemand
         run: |
-          bundle install --path vendor/bundle --without e2e
+          bundle install --path vendor/bundle
           mkdir -p dist/${{ matrix.dist }}-${{ matrix.arch }}
           cp /tmp/output/${{ matrix.dist }}-${{ matrix.arch }}/* dist/${{ matrix.dist }}-${{ matrix.arch }}/
       - name: Build OnDemand package
