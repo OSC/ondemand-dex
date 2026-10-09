@@ -9,7 +9,7 @@ export DH_VERBOSE = 1
 export SESSION_COMMIT = 55fcbfa7ab03dbf9f3ef7884773e5834803294a9
 export GO_VERSION = 1.25.8
 export BUILDDIR = $(CURDIR)/build
-export DEX_VERSION = $(VERSION:v%=%)
+export DEX_VERSION = $(shell echo "$(VERSION:v%=%)" | cut -d'-' -f1)
 export GOPATH = /tmp/go
 export PATH = /usr/bin:/bin:/usr/sbin:/sbin:/usr/local/bin:/usr/local/sbin:$(GOPATH)/bin
 export DEXDIR = $(BUILDDIR)/dex-$(DEX_VERSION)
